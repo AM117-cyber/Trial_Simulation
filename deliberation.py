@@ -1,31 +1,36 @@
-from jurors import Juror, order_for_info_pooling, set_foreperson
-from utils import Fact, Fact_Types, Roles, Testimony_Impressions, Vote
+from jurors import Juror, get_facts_in_format, order_for_info_pooling, set_foreperson
+from utils import Debating_points, Fact, Fact_Types, Info_pooling_data, Roles, Testimony_Impressions, Vote
 
 
 def simulate_deliberation():
-    j1 = juror()
-    j2 = juror()
-    jury = [j1,j2]
+
     # foreperson speaks more and is more influential
     foreperson = set_foreperson(jury) # selects a foreperson from the jury and adds foreperson desires to their desires
     jury = order_for_info_pooling(jury) # orders according to confidence levels in what they belief, extraversion and openness
+    jurors_that_have_talked = 0
     for juror in jury:
+        juror.desires.listen_testimonies = False
+        juror.participate_in_info_pooling = True
         print(f"Age: {juror.age}, Confidence Level: {juror.confidence_level()}, Extraversion: {juror.extraversion}, Openness: {juror.openness}")
-
-        juror.share_veracity_beliefs(jury)
+        for juror_recipient in jury:
+            if juror_recipient.id != juror.id:
+                juror_recipient.perceive_world(Info_pooling_data(jurors_that_have_talked,get_facts_in_format(juror.beliefs.facts), juror))
+        jurors_that_have_talked+=1
     # asumamos que foreperson siempre inicia el debate
     current_debater = foreperson
     time = 0
     while current_debater and time <= len(jury) *20: #si llega a ese límite a dado tiempo a que hablen todos los del jurado 20 veces. time representa la cantidad de intervenciones
         time+=1
-        beliefs_to_debate = current_debater.beliefs_to_debate()
-        max_value = 2 # debating threshold
+        beliefs_to_debate = current_debater.beliefs.facts_with_discrepancy_value
+        if not beliefs_to_debate:
+            beliefs_to_debate = get_facts_in_format(current_debater.beliefs.facts)
+        max_value = len(jury)/2 * 25 # debating threshold
         for juror in jury:
             if juror.number != current_debater:
-                value = juror.receive_debating_points(beliefs_to_debate)
+                value = juror.perceive_world(Debating_points(current_debater,beliefs_to_debate, None))
                 if value > max_value:
                     current_debater = juror
-        if max_value <= 2: # no ha cambiado, entonces no hay persona que continúe el debate
+        if max_value <= 100: # no ha cambiado, entonces no hay persona que continúe el debate
             break
     for juror in jury:
         vote = juror.vote()
@@ -37,6 +42,7 @@ def simulate_deliberation():
             guilty +=1
     print(f"Votes for not guilty: {not_guilty}")
     print(f"Votes for guilty: {guilty}")
+    return (not_guilty,guilty)
 
 fact1 = Fact(Fact_Types.oportunity, "fact1")
 fact2 = Fact(Fact_Types.motive, "fact2")

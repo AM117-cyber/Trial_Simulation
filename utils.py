@@ -56,9 +56,8 @@ class Case_beliefs():
 
         
 class Info_pooling_data():
-    def __init__(self,jurors_that_have_talked, total_jurors_amount, message: Case_beliefs, sender_juror,):
+    def __init__(self,jurors_that_have_talked, message: Case_beliefs, sender_juror,):
         self.jurors_that_have_talked = jurors_that_have_talked
-        self.total_jurors_amount = total_jurors_amount 
         self.message = message
         self.sender_juror = sender_juror
 
@@ -69,6 +68,6 @@ class Debating_points():
         self.perssuassion_strategy = perssuassion_strategy
 
 class Veracity(Enum):
-    HIGH = 2
-    UNCERTAIN = 1
+    HIGH = 50
+    UNCERTAIN = 15
     LOW = -15

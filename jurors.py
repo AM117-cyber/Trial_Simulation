@@ -20,9 +20,9 @@ import random
 from utils import Gender, Phase, Roles, S_Status, Trait_Level,Veracity
 from collections import Counter
 
-class Juror:
-    def __init__(self, id, openness, conscientiousness, extraversion, agreeableness, neuroticism, locus_of_control, social_norms, value_emotional_exp, takes_risks, takes_decisions_by_fear, bias, age, gender, race, socioeconomic_status, facts, testimony_impressions, role, total_jurors_amount):
-        self.id = id
+
+class JurorBeliefs():
+    def __init__(self, openness, conscientiousness, extraversion, agreeableness, neuroticism, locus_of_control, social_norms, value_emotional_exp, takes_risks, takes_decisions_by_fear, bias, age, gender, race, socioeconomic_status, facts):
         self.openness = openness
         self.conscientiousness = conscientiousness
         self.extraversion = extraversion
@@ -37,15 +37,35 @@ class Juror:
         self.age = age
         self.gender = gender
         self.race = race
+        self.facts_with_discrepancy_value = {}
         self.socioeconomic_status = socioeconomic_status
         self.facts = facts
+        self.jurors_that_have_talked = 0
+        self.majority_beliefs = {}
+
+
+class Desires():
+    def __init__(self):
+        self.listen_testimonies = True
+        self.participate_in_info_pooling = False
+        self.lie = False
+        self.debate = False
+
+
+class Juror:
+    def __init__(self, id, beliefs: JurorBeliefs,total_jurors_amount):
+        self.id = id
+        self.facts = {}
         self.verdict = None
-        self.role = role
-        self.total_jurors_amount = total_jurors_amount
+        self.role = None
+        self.beliefs = beliefs
+        self.desires = Desires()
         self.other_jurors_beliefs = {}
+        self.total_jurors_amount = total_jurors_amount
+        self.turn_to_speak = False
 
     def confidence_level(self):
-        return sum(abs(veracity) for veracity in self.facts.values())
+        return sum(abs(value[1]) for value in self.facts.values())
 
     def share_veracity_beliefs(self, jury):
          """Sends a message containing this juror's beliefs about fact veracity and testimony impressions to the jurors on the list jury."""
@@ -55,17 +75,17 @@ class Juror:
         influence = 0
         if sender_juror.role is Roles.leader:
             if self.role is Roles.holdout:
-                influence +=0.1
+                influence +=1
             elif self.role is Roles.leader:
-                influence +=0.3
+                influence +=5
             elif self.role is Roles.negotiator:
-                influence += 0.5
+                influence += 7
             else:
-                influence += 2
+                influence += 12
         if sender_juror.role is Roles.negotiator:
-            influence +=1
+            influence +=8
         if self.agreeableness is Trait_Level.high:
-            influence+=0.3
+            influence+=5
         return influence
     
     def execute_action(self):
@@ -108,7 +128,7 @@ class Juror:
             return result
         # si lie está activado voy a tratar mis beliefs como las mentiras que voy a promulgar, al menos hasta que se deje de cumplir la condición de la opinión de la mayoría
 
-        if self.debate:
+        if self.desires.debate:
             # decide how the message influences me
             influence = self.calculate_influence(info.sender_juror, info.perssuassion_strategy)
             for fact in info.beliefs_debated.keys():
@@ -116,11 +136,19 @@ class Juror:
                     self.beliefs.facts[fact][1] -= influence
                 else:
                     self.beliefs.facts[fact][1] += influence
+                    if self.beliefs.facts[fact][1] >= -15 and self.beliefs.facts[fact][1] <=15:
+                       self.beliefs.facts[fact][1] += 5 # si no estás muy seguro la influencia es mayor 
+            # my beliefs have been updated
+            discrepance_by_fact = self.get_discrepance_by_fact()
+            self.beliefs.facts_with_discrepancy_value = discrepance_by_fact
+            result = 0
+            for fact in discrepance_by_fact.keys():
+                result += discrepance_by_fact[fact][1] * abs(self.beliefs.facts[fact][1])
+            return result
             # return my discrepancy value 
             # if I am lying my discrepancy value is with self.beliefs.majority_beliefs[1]
             # as the sum of discrepancies' values
-            pass
-    
+
     
         
 
@@ -141,6 +169,8 @@ class Juror:
     
         return facts_with_discrepancy_value
 
+    def vote():
+        pass
 
 def get_facts_in_format(fact_dict):
     """
@@ -167,37 +197,6 @@ def get_facts_in_format(fact_dict):
     return converted_dict
 
 
-class JurorBeliefs():
-    def __init__(self, phase: Phase, openness, conscientiousness, extraversion, agreeableness, neuroticism, locus_of_control, social_norms, value_emotional_exp, takes_risks, takes_decisions_by_fear, bias, age, gender, race, socioeconomic_status, facts, testimony_impressions, total_jurors_amount):
-        self.openness = openness
-        self.conscientiousness = conscientiousness
-        self.extraversion = extraversion
-        self.agreeableness = agreeableness
-        self.neuroticism = neuroticism
-        self.locus_of_control = locus_of_control
-        self.social_norms = social_norms
-        self.value_emotional_exp = value_emotional_exp
-        self.takes_risks = takes_risks
-        self.takes_decisions_by_fear = takes_decisions_by_fear
-        self.bias = bias
-        self.age = age
-        self.gender = gender
-        self.race = race
-        self.facts_with_discrepancy_value = {}
-        self.socioeconomic_status = socioeconomic_status
-        self.facts = facts
-        self.total_jurors_amount = total_jurors_amount
-        self.other_jurors_beliefs = {}
-        self.phase = phase
-
-
-class Desires():
-    def __init__(self):
-        self.listen_testimonies = True
-        self.participate_in_info_pooling = False
-        self.lie = False
-        self.debate = False
-     
 
 def set_foreperson(jury):
     foreperson_value = 0

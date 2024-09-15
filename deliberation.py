@@ -1,4 +1,4 @@
-from agent_methods import Juror, JurorBeliefs, get_facts_in_format, order_for_info_pooling, perceive_world_general, set_foreperson
+from agent_methods import Juror, JurorBeliefs, get_facts_in_format, order_for_info_pooling, perceive_world_general, set_foreperson, vote
 from utils import Debating_points, Fact, Fact_Info, Fact_Types, Info_pooling_data, Message, Phase, Roles, Testimony_Impressions, Vote
 from environment import SimulationContext
 
@@ -40,6 +40,7 @@ def simulate_deliberation(jury):
             break
         current_debater = context.message.sender_juror
     for juror in jury:
+        # desire to hide my opinion
         vote = juror.vote()
         not_guilty = 0
         guilty = 0
@@ -58,17 +59,17 @@ fact3 = Fact(Fact_Types.character, "fact3")
 
 
 # Creating 6 instances of the juror class
-jury1 = Juror(perceive_world_general, None, 1,"High", "Low", "High", "Low", "High", "Internal", "High", "High", "High", "Low", "None", 30, "Male", "Asian", "Middle", JurorBeliefs({fact1: Fact_Info(5.6,30), fact2: Fact_Info(7.3, -47), fact3: Fact_Info(5,20)})) 
+jury1 = Juror(perceive_world_general, None, vote, 1,"High", "Low", "High", "Low", "High", "Internal", "High", "High", "High", "Low", "None", 30, "Male", "Asian", "Middle", JurorBeliefs({fact1: Fact_Info(5.6,30), fact2: Fact_Info(7.3, -47), fact3: Fact_Info(5,20)})) 
 jury1.role = Roles.holdout
-jury2 = Juror(perceive_world_general, None, 2, "Low", "High", "Low", "High", "Low", "External", "Low", "Low", "Low", "High", "Some", 45, "Female", "Caucasian", "High", JurorBeliefs({fact1: Fact_Info(2.7,-20), fact2: Fact_Info(4.3, -40), fact3: Fact_Info(3.4,35)}))
+jury2 = Juror(perceive_world_general, None, vote, 2, "Low", "High", "Low", "High", "Low", "External", "Low", "Low", "Low", "High", "Some", 45, "Female", "Caucasian", "High", JurorBeliefs({fact1: Fact_Info(2.7,-20), fact2: Fact_Info(4.3, -40), fact3: Fact_Info(3.4,35)}))
 jury2.role = Roles.follower
-jury3 = Juror(perceive_world_general, None, 3,"High", "High", "Low", "Low", "High", "Internal", "High", "Low", "High", "Low", "None", 25, "Male", "African American", "Low", JurorBeliefs({fact1: Fact_Info(4.1, 15), fact2: Fact_Info(4.3, -50), fact3: Fact_Info(3,8)}))
+jury3 = Juror(perceive_world_general, None, vote, 3,"High", "High", "Low", "Low", "High", "Internal", "High", "Low", "High", "Low", "None", 25, "Male", "African American", "Low", JurorBeliefs({fact1: Fact_Info(4.1, 15), fact2: Fact_Info(4.3, -50), fact3: Fact_Info(3,8)}))
 jury3.role = Roles.filler
-jury4 = Juror(perceive_world_general, None, 4, "Low", "Low", "High", "High", "Low", "External", "Low", "High", "Low", "High", "Some", 35, "Female", "Hispanic", "Middle", JurorBeliefs({fact1: Fact_Info(3.2,43), fact2: Fact_Info(6.7, -19), fact3: Fact_Info(4.7,33)}))
+jury4 = Juror(perceive_world_general, None, vote, 4, "Low", "Low", "High", "High", "Low", "External", "Low", "High", "Low", "High", "Some", 35, "Female", "Hispanic", "Middle", JurorBeliefs({fact1: Fact_Info(3.2,43), fact2: Fact_Info(6.7, -19), fact3: Fact_Info(4.7,33)}))
 jury4.role = Roles.follower
-jury5 = Juror(perceive_world_general, None, 5,"High", "Low", "High", "High", "Low", "Internal", "High", "High", "High", "Low", "None", 40, "Male", "Asian", "High", JurorBeliefs({fact1: Fact_Info(6.2,40), fact2: Fact_Info(8.4, -33), fact3: Fact_Info(5.9,45)}))
+jury5 = Juror(perceive_world_general, None, vote, 5,"High", "Low", "High", "High", "Low", "Internal", "High", "High", "High", "Low", "None", 40, "Male", "Asian", "High", JurorBeliefs({fact1: Fact_Info(6.2,40), fact2: Fact_Info(8.4, -33), fact3: Fact_Info(5.9,45)}))
 jury5.role = Roles.leader #leader
-jury6 = Juror(perceive_world_general, None, 6, "Low", "High", "Low", "High", "Low", "External", "Low", "Low", "Low", "High", "Some", 50, "Female", "Caucasian", "Low", JurorBeliefs({fact1: Fact_Info(3.1,10), fact2: Fact_Info(4.3, -42), fact3: Fact_Info(3.5,40)}))
+jury6 = Juror(perceive_world_general, None, vote, 6, "Low", "High", "Low", "High", "Low", "External", "Low", "Low", "Low", "High", "Some", 50, "Female", "Caucasian", "Low", JurorBeliefs({fact1: Fact_Info(3.1,10), fact2: Fact_Info(4.3, -42), fact3: Fact_Info(3.5,40)}))
 jury6.role = Roles.follower
 
 

@@ -3,7 +3,7 @@ import random
 from typing import List
 
 from environment import SimulationContext
-from utils import Gender, Message, Phase, Roles, S_Status, Trait_Level, Veracity
+from utils import Gender, Message, Phase, Roles, S_Status, Trait_Level, Veracity, Vote
 class AgentInterface(ABC):
     """Abstract base class for agent interfaces."""
     @abstractmethod
@@ -47,7 +47,7 @@ class JurorBeliefs():
         self.other_jurors_beliefs = {}
 
 class Juror(AgentInterface):
-    def __init__(self,perceive_world_func,execute_action_func, id, openness, conscientiousness, extraversion, agreeableness, neuroticism, locus_of_control, social_norms, value_emotional_exp, takes_risks, takes_decisions_by_fear, bias, age, gender, race, socioeconomic_status, beliefs: JurorBeliefs):
+    def __init__(self,perceive_world_func,execute_action_func, vote_function, id, openness, conscientiousness, extraversion, agreeableness, neuroticism, locus_of_control, social_norms, value_emotional_exp, takes_risks, takes_decisions_by_fear, bias, age, gender, race, socioeconomic_status, beliefs: JurorBeliefs):
         self.context = SimulationContext()
         self.id = id
         self.beliefs = beliefs
@@ -71,6 +71,7 @@ class Juror(AgentInterface):
         self.execute_action_func = execute_action_func
         self.is_foreperson = False
         self.role = None
+        self.vote_function = vote_function
 
     def confidence_level(self):
         return sum(abs(level.value) for level in self.beliefs.facts.values())
@@ -88,6 +89,9 @@ class Juror(AgentInterface):
         
     def execute_action(self):
         return self.execute_action_func(self)
+    
+    def vote(self):
+        return self.vote_function(self)
 
 def perceive_world_general(juror: Juror):
     """Basic way of perceiving the world for a juror"""
@@ -281,4 +285,25 @@ def average_age(jury):
 
 def order_for_info_pooling(jurors):
     return sorted(jurors, key=lambda juror: (juror.confidence_level(), juror.extraversion, juror.openness), reverse=True)
-            
+
+
+def vote(juror):
+    """
+    Generate a juror's vote based on the relevance and veracity of facts.
+    
+    Parameters:
+    facts (list of tuples): Each tuple contains (relevance, veracity) of a fact.
+    
+    Returns:
+    str: 'Guilty' or 'Not Guilty'
+    """
+    total_relevance = sum(fact.relevance for fact in juror.beliefs.facts_with_value.items())
+    weighted_veracity = sum(fact.relevance * fact.veracity for fact in juror.beliefs.facts_with_value.items()) / total_relevance
+    
+    # Decision threshold can be adjusted based on desired sensitivity
+    decision_threshold = 0
+    
+    if weighted_veracity > decision_threshold:
+        return Vote.guilty
+    else:
+        return Vote.not_guilty

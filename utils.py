@@ -16,7 +16,7 @@ class Roles(Enum):
     negotiator = 2
     holdout = 2
     filler = 3
-    
+
 
 class S_Status(Enum):
     high= 1
@@ -44,6 +44,11 @@ class Fact():
         self.text = text
         self.type = type
 
+class Fact_Info():
+    def __init__(self,relevance, veracity):
+        self.relevance = relevance
+        self.veracity = veracity
+
 class Phase(Enum):
     witness_interrogation= 1
     info_pooling = 2
@@ -67,7 +72,12 @@ class Debating_points():
         self.beliefs_debated = beliefs_debated 
         self.perssuassion_strategy = perssuassion_strategy
 
+class Message():
+    def __init__(self,sender_juror, content):
+        self.sender_juror = sender_juror
+        self.beliefs_debated = content # beliefs the juror wants to discuss
+
 class Veracity(Enum):
-    HIGH = 50
-    UNCERTAIN = 15
-    LOW = -15
+    HIGH = 3
+    UNCERTAIN = 2
+    LOW = 1

@@ -16,6 +16,29 @@ class AgentInterface(ABC):
         """Function to execute the intentions of the agent"""
         pass
 
+class Desires():
+    def __init__(self):
+        self.Strengthen_veracity_of_most_relevant_fact = False
+        self.Diminish_veracity_of_poorly_explained_fact = False # if the veracity is very close to 0 (the juror is highly uncertain) and the relevance is very low, under 20%, then for the trial to be just assume that the fact is false
+        self.Reach_consensus_on_most_relevant_fact = False # insist in that fact until everyone has the same opinion on it
+        self.Support_a_jurors_beliefs = False
+        self.Contradict_a_jurors_beliefs = False
+        self.Convince_others_of_my_beliefs = False
+    
+class Intentions():
+    def __init__(self):
+        self.Share_only_most_relevant_fact_with_my_veracity = False # Strengthen_veracity_of_most_relevant_fact
+        self.Share_only_that_fact_with_smaller_veracity = False # Diminish_veracity_of_poorly_explained_fact
+        self.Share_only_most_relevant_fact_with_popular_opinion = False # Reach_consensus_on_most_relevant_fact
+        self.Share_discrepancies_from_other_juror = False # Support_a_jurors_beliefs
+        self.Share_opposite_discrepancies_from_other_juror = False # Contradict_a_jurors_beliefs
+        self.Share_most_discrepant_facts = False # Convince_others_of_my_beliefs
+        self.Share_most_discrepant_facts_middle = False # Convince_others_of_my_beliefs
+        self.Share_less_discrepant_facts = False # Convince_others_of_my_beliefs
+        self.Share_all_discrepant_facts = False # Convince_others_of_my_beliefs
+        self.Share_all_facts_beliefs = False # Convince_others_of_my_beliefs
+
+
 class JurorBeliefs():
     def __init__(self, facts):
 
@@ -28,6 +51,7 @@ class Juror(AgentInterface):
         self.context = SimulationContext()
         self.id = id
         self.beliefs = beliefs
+        self.desires = Desires()
         self.openness = openness
         self.conscientiousness = conscientiousness
         self.extraversion = extraversion
@@ -97,6 +121,10 @@ def process_debate_message_general(juror : Juror, message : Message):
         # process_message(get influence and update that jurors beliefs) and return my debate message with its value
         esteem = get_esteem_for_someone(juror, message.sender_juror)
         debated_beliefs_similarity = 2 * len(message.beliefs_debated.keys()) 
+        # contradecir o apoyar como deseo, normal
+        # si está en contra con todo lo compartido y la persona me cae mal y neurotic, si holdout prob mayor y si está en contra del foreperson y tu filler o follower
+        # si eres leader o foreperson y yo filler o follower =>apoyar sería si compartimos lo debatido y me cae bien y high agreeablenness
+
         for fact in message.beliefs_debated:
             juror.beliefs.other_jurors_beliefs[message.sender_juror][fact] = message.beliefs_debated[fact]
             difference = abs(message.beliefs_debated[fact].value - juror.beliefs.facts[fact].value)

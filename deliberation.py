@@ -1,3 +1,4 @@
+from LLM_use import Trial_summary_generator
 from agent_methods import Juror, JurorBeliefs, get_facts_in_format, order_for_info_pooling, perceive_world_general, set_foreperson, vote
 from utils import Debating_points, Fact, Fact_Info, Fact_Types, Info_pooling_data, Message, Phase, Roles, Testimony_Impressions, Vote
 from environment import SimulationContext
@@ -48,8 +49,13 @@ def simulate_deliberation(jury):
             not_guilty +=1
         else:
             guilty +=1
+        context.sequence_of_events += "Juror " + juror.id + " voted for " + vote.name + ".\n"
+    context.sequence_of_events += "Votes for not guilty: " + not_guilty + ".\n"
+    context.sequence_of_events += "Votes for guilty: " + guilty + ".\n"
     print(f"Votes for not guilty: {not_guilty}")
     print(f"Votes for guilty: {guilty}")
+    tsg = Trial_summary_generator()
+    write_to_file("Case 1", tsg.generate_summary(context.sequence_of_events))
     return (not_guilty,guilty) 
 
 
@@ -78,6 +84,28 @@ jurors = [jury1, jury2, jury3, jury4, jury5, jury6]
 
 simulate_deliberation(jurors)
 
+def write_to_file(filename, content):
+    """
+    Write content to a file. If the file already exists, append the content two lines below the current content.
+    
+    Parameters:
+    filename (str): The name of the file.
+    content (str): The content to write to the file.
+    """
+    try:
+        with open(filename, 'a+') as file:
+            file.seek(0)
+            data = file.read()
+            if data:
+                file.write('\n\n')  # Add two new lines before appending new content
+            file.write(content)
+    except Exception as e:
+        print(f"An error occurred: {e}")
+
+# Example usage
+filename = 'example.txt'
+content = 'This is the new content to add.'
+write_to_file(filename, content)
 
 
    

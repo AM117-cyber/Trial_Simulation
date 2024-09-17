@@ -3,7 +3,8 @@ import random
 from typing import List
 
 from environment import SimulationContext
-from utils import Gender, Message, Phase, Roles, S_Status, Trait_Level, Veracity, Vote
+from utils import Gender, Message, Phase, Roles, S_Status, Trait_Level, Veracity, Vote, map_features, Fact_Types
+from expert_system_role import ExpertSystem
 class AgentInterface(ABC):
     """Abstract base class for agent interfaces."""
     @abstractmethod
@@ -307,3 +308,45 @@ def vote(juror):
         return Vote.guilty
     else:
         return Vote.not_guilty
+
+def update_pool(jury_pool):
+    for juror in jury_pool:
+        expert = ExpertSystem(juror)
+        juror.role = expert.role
+        update_relevance_fact(juror)
+
+def update_relevance_fact(juror):
+    relevance_facts = [0]*5
+    features = [juror.openness, juror.extraversion, juror.agreeableness, juror.conscientiousness, juror.neuroticism, 
+                juror.locus_of_control, juror.value_emotional_exp, juror.takes_risks, juror.takes_decisions_by_fear, 
+                juror.socioeconomic_status]
+    features = [map_features(elem) for elem in features]
+    # Predefined values ​​of the influence that a juror characteristic has on how he or she perceives a fact
+    matrix_features_facts = [[0.1, 0.3, 0.2, 0.1, 0.3],
+                            [0.2, 0.4, 0.1, 0.1, 0.2],
+                            [0.1, 0.2, 0.4, 0.1, 0.3],
+                            [0.3, 0.1, 0.1, 0.4, 0.1],
+                            [0.2, 0.3, 0.1, 0.1, 0.3], 
+                            [0.2, 0.1, 0.2, 0.3, 0.2],
+                            [0.1, 0.2, 0.3, 0.1, 0.3],
+                            [0.4, 0.1, 0.1, 0.3, 0.1],
+                            [0.1, 0.3, 0.1, 0.1, 0.3],
+                            [0.2, 0.4, 0.3, 0.1, 0.1]]
+    
+    for i in range(5):
+        for j in range(10):
+            relevance_facts[i] += features[j] * matrix_features_facts[j][i]
+
+    relevance_facts = [rf/4 for rf in relevance_facts] # range of relevance of a fact [1-10]
+    fact_dict = juror.beliefs.facts
+    for fact in fact_dict.keys():
+        if fact.type == Fact_Types.oportunity:
+            fact_dict[fact].relevance = relevance_facts[0]
+        elif fact.type == Fact_Types.motive:
+            fact_dict[fact].relevance = relevance_facts[1]
+        elif fact.type == Fact_Types.character:
+            fact_dict[fact].relevance = relevance_facts[2]
+        elif fact.type == Fact_Types.causality:
+            fact_dict[fact].relevance = relevance_facts[3]
+        elif fact.type == Fact_Types.intention:
+            fact_dict[fact].relevance = relevance_facts[4]

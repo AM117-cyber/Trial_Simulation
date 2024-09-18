@@ -213,7 +213,8 @@ def get_all_beliefs_to_debate(juror, discrepance_level):
             discrepant_facts_scores += 1
             if fact not in discrepant_facts:
                 discrepant_facts[fact] = juror.beliefs.facts[fact]
-    return [discrepant_facts,discrepant_facts_scores/len(discrepant_facts)]
+    discrepant_facts_scores = 0 if len(discrepant_facts) == 0 else discrepant_facts_scores/len(discrepant_facts)
+    return [discrepant_facts,discrepant_facts_scores]
     
 
 # def get_some_beliefs_to_debate(juror: Juror, discrepance_level):
@@ -298,8 +299,8 @@ def vote(juror):
     Returns:
     str: 'Guilty' or 'Not Guilty'
     """
-    total_relevance = sum(fact.relevance for fact in juror.beliefs.facts_with_value.items())
-    weighted_veracity = sum(fact.relevance * fact.veracity for fact in juror.beliefs.facts_with_value.items()) / total_relevance
+    total_relevance = sum(juror.beliefs.facts_with_value[fact[0]].relevance for fact in juror.beliefs.facts_with_value.items())
+    weighted_veracity = sum(juror.beliefs.facts_with_value[fact[0]].relevance * juror.beliefs.facts_with_value[fact[0]].veracity for fact in juror.beliefs.facts_with_value.items()) / total_relevance
     
     # Decision threshold can be adjusted based on desired sensitivity
     decision_threshold = 0
@@ -338,7 +339,7 @@ def update_relevance_fact(juror):
             relevance_facts[i] += features[j] * matrix_features_facts[j][i]
 
     relevance_facts = [rf/4 for rf in relevance_facts] # range of relevance of a fact [1-10]
-    fact_dict = juror.beliefs.facts
+    fact_dict = juror.beliefs.facts_with_value
     for fact in fact_dict.keys():
         if fact.type == Fact_Types.oportunity:
             fact_dict[fact].relevance = relevance_facts[0]
@@ -350,3 +351,28 @@ def update_relevance_fact(juror):
             fact_dict[fact].relevance = relevance_facts[3]
         elif fact.type == Fact_Types.intention:
             fact_dict[fact].relevance = relevance_facts[4]
+
+def update_veracity(jurors, witness, fact):
+    matrix_intentions_features = [[0.2, 0.2, 0.7, 0.6, 0.1],
+                                  [0.5, 0.2, 0.8, 0.5, 0.0],
+                                  [0.6, 0.9, 0.0, 0.1, 0.0],
+                                  [0.2, 0.1, 0.3, 0.6, 0.0],
+                                  [0.1, 0.7, 0.0, 0.1, 0.0],
+                                  [0.1, 0.0, 0.0, 0.1, 0.0],
+                                  [-0.2, -0.8, -0.3, -0.8, -0.9],
+                                  [0.1, 0.2, 0.1, 0.1, 0.4],
+                                  [-0.1, -0.5, -0.4, -0.3, -0.8]]
+    for juror in jurors:
+        features = [juror.openness, juror.conscientiousness, juror.extraversion, juror.agreeableness, juror.neuroticism]
+        features = [map_features(elem) for elem in features]
+        result = 0
+
+        row = matrix_intentions_features[witness.context.get_witness_intention().value]
+        for i in range(5):
+            if i == 3 and row[i] == (-0.8):
+                result = -8 + 0.8*features[i]
+            else:
+                result += features[i]*row[i]
+        result = result*(-1) if witness.side else result
+        juror.beliefs.facts_with_value[fact[0]].veracity += result
+    

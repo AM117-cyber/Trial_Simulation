@@ -8,6 +8,9 @@ class GeneticAlgorithm:
         self,  
         n_genes,
         n_people,
+        lawyer,
+        jury_pool,
+        testimonies,
         n_iterations = 8, # numero de iteraciones del algoritmo genetico
         n_estrategy = 5,
         n_jurors = 12, 
@@ -23,6 +26,9 @@ class GeneticAlgorithm:
         self.population = population
         self.n_jurors = n_jurors 
         self.n_people = n_people
+        self.lawyer = lawyer
+        self.jury_pool = jury_pool
+        self.testimonies = testimonies
         self.best_fitness_evolution = []
         self.most_popular_alleles = [[0, None]]*n_people
 
@@ -35,7 +41,7 @@ class GeneticAlgorithm:
     
     ## Method for evaluation
     def get_fitness_scores(self):
-        scores = [self.fitness_func(ind) for ind in self.population]
+        scores = [self.fitness_func(ind, self.n_jurors, self.testimonies, self.jury_pool, self.lawyer) for ind in self.population]
         return np.array(scores)
     
     def reset_popular_alleles(self):
@@ -194,8 +200,11 @@ class GeneticAlgorithm:
         )
         plt.show()
 
-def genetic_algorithm(n_strategies, n_jurors, n_people, n_testimonies):
+def genetic_algorithm(lawyer, n_jurors, jury_pool, testimonies):
     # Poblacion random para la primera generacion del algoritmo genetico
+    n_people = len(jury_pool)
+    n_strategies = len(lawyer.strategies[0])
+    n_testimonies = len(testimonies)
     poblacion = [
         tuple(random.sample(range(1, n_people+1), n_jurors)) + tuple(np.random.randint(1, n_strategies+1) for _ in range(n_testimonies))
         for _ in range(10)
@@ -207,7 +216,10 @@ def genetic_algorithm(n_strategies, n_jurors, n_people, n_testimonies):
         n_jurors=n_jurors,
         population = poblacion,
         n_people = n_people,
-        fitness_func= simulate_trial()
+        lawyer = lawyer,
+        jury_pool = jury_pool,
+        testimonies = testimonies,
+        fitness_func= simulate_trial
     )
 
     # ga.view_fitness_evolution()

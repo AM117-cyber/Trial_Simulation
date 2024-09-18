@@ -2,15 +2,16 @@ import numpy as np
 from experta import *
 from sklearn.metrics.pairwise import cosine_similarity
 from utils import map_features
+from utils import Trait_Level
 
 # Definición de Hechos
 class JurorExpSys(Fact):
     """Información sobre el jurado."""
-    openness = Field(str, default="")
-    extraversion = Field(str, default="")
-    agreeableness = Field(str, default="")
-    conscientiousness = Field(str, default="")
-    neuroticism = Field(str, default="")
+    openness = Field(Trait_Level, default=None)
+    extraversion = Field(Trait_Level, default=None)
+    agreeableness = Field(Trait_Level, default=None)
+    conscientiousness = Field(Trait_Level, default=None)
+    neuroticism = Field(Trait_Level, default=None)
     locus_of_control = Field(str, default="")
     value_emotional_exp = Field(str, default="")
     takes_risks = Field(str, default="")
@@ -23,32 +24,37 @@ class JurorIdentificator(KnowledgeEngine):
         super().__init__()
         self.role = None
 
-    @Rule(JurorExpSys(openness="Middle", extraversion="High", agreeableness="Middle", conscientiousness="High", neuroticism="Middle", 
-                      locus_of_control="Internal", value_emotional_exp="Low", takes_risks="High", takes_decisions_by_fear="Low", 
+    @Rule(JurorExpSys(openness=Trait_Level.undefined, extraversion=Trait_Level.high, agreeableness=Trait_Level.undefined, 
+                      conscientiousness=Trait_Level.high, neuroticism=Trait_Level.undefined, locus_of_control="Internal", 
+                      value_emotional_exp="Low", takes_risks="High", takes_decisions_by_fear="Low", 
                       socioeconomic_status="High")) # rule1
     def is_leader(self):
         self.role = "Leader"
 
-    @Rule(JurorExpSys(openness="Middle", extraversion="Low", agreeableness="High", conscientiousness="Middle", neuroticism="Middle", 
-                      locus_of_control="External", value_emotional_exp="Middle", takes_risks="Low", takes_decisions_by_fear="High", 
+    @Rule(JurorExpSys(openness=Trait_Level.undefined, extraversion=Trait_Level.low, agreeableness=Trait_Level.high, 
+                      conscientiousness=Trait_Level.undefined, neuroticism=Trait_Level.undefined, locus_of_control="External", 
+                      value_emotional_exp="Middle", takes_risks="Low", takes_decisions_by_fear="High", 
                       socioeconomic_status="Middle")) # rule2
     def is_follower(self):
         self.role = "Follower"
     
-    @Rule(JurorExpSys(openness="High", extraversion="Middle", agreeableness="Middle", conscientiousness="Middle", neuroticism="Middle", 
-                      locus_of_control="External", value_emotional_exp="Middle", takes_risks="Middle", takes_decisions_by_fear="Middle", 
+    @Rule(JurorExpSys(openness=Trait_Level.high, extraversion=Trait_Level.undefined, agreeableness=Trait_Level.undefined, 
+                      conscientiousness=Trait_Level.undefined, neuroticism=Trait_Level.undefined, locus_of_control="External", 
+                      value_emotional_exp="Middle", takes_risks="Middle", takes_decisions_by_fear="Middle", 
                       socioeconomic_status="Middle")) # rule3
     def is_filler(self):
         self.role = "Filler"
 
-    @Rule(JurorExpSys(openness="High", extraversion="High", agreeableness="High", conscientiousness="High", neuroticism="Middle", 
-                      locus_of_control="Internal", value_emotional_exp="Low", takes_risks="Middle", takes_decisions_by_fear="Middle", 
+    @Rule(JurorExpSys(openness=Trait_Level.high, extraversion=Trait_Level.high, agreeableness=Trait_Level.high, 
+                      conscientiousness=Trait_Level.high, neuroticism=Trait_Level.undefined, locus_of_control="Internal", 
+                      value_emotional_exp="Low", takes_risks="Middle", takes_decisions_by_fear="Middle", 
                       socioeconomic_status="High")) # rule4
     def is_negotiator(self):
         self.role = "Negotiator"
 
-    @Rule(JurorExpSys(openness="Low", extraversion="Middle", agreeableness="Middle", conscientiousness="Middle", neuroticism="High", 
-                      locus_of_control="Internal", value_emotional_exp="Middle", takes_risks="High", takes_decisions_by_fear="Low", 
+    @Rule(JurorExpSys(openness=Trait_Level.low, extraversion=Trait_Level.undefined, agreeableness=Trait_Level.undefined, 
+                      conscientiousness=Trait_Level.undefined, neuroticism=Trait_Level.high, locus_of_control="Internal", 
+                      value_emotional_exp="Middle", takes_risks="High", takes_decisions_by_fear="Low", 
                       socioeconomic_status="High")) # rule5
     def is_holdout(self):
         self.role = "Holdout"
@@ -57,11 +63,11 @@ class JurorIdentificator(KnowledgeEngine):
     def unknown_role(self, fact):
         if(self.role == None):
             # Predefined features for each role of jury
-            leader_features = np.array([4,9,6,8,4,9,2,8,3,8])
-            follower_features = np.array([5,3,8,4,5,2,5,2,8,4])
-            filler_features = np.array([7,4,5,4,5,5,5,4,5,5])
-            negotiator_features = np.array([7,7,8,8,4,7,3,6,4,7])
-            holdout_features = np.array([3,6,4,6,8,5,5,8,2,8])
+            leader_features = np.array([7,9,5,7,4,9,2,8,3,8]) 
+            follower_features = np.array([5,4,6,3,4,2,5,2,8,4]) 
+            filler_features = np.array([2,2,5,2,4,5,5,4,5,5]) 
+            negotiator_features = np.array([7,9,7,8,4,7,3,6,4,7])
+            holdout_features = np.array([3,5,5,6,6,5,5,8,2,8]) 
 
             current_features = [fact[f] for f in fact][:10]
             current_features = np.array([map_features(elem) for elem in current_features])

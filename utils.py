@@ -52,9 +52,11 @@ class Fact_Info():
         self.veracity = veracity
 
 class Phase(Enum):
-    witness_interrogation= 1
-    info_pooling = 2
-    belief_confrontation = 3
+    aplication_strategies = 1
+    witness_testimony = 2
+    juror_feedback = 3
+    info_pooling = 4
+    belief_confrontation = 5
 
 
 class Case_beliefs():
@@ -98,11 +100,48 @@ class StrategiesOpposingWitnesses(Enum):
     Contradiction_trap = 4
     Emotion_unreliability = 5
 
+class LawyerDesires_Enum(Enum):
+    # With own witnesses
+    Desire_to_maximize_witness_credibility = 0 # clarity chronical y clarity + detailed
+    Desire_to_generate_positive_emotions_in_witnesses = 1 # empathy reluctante
+    Desire_to_positively_influence_jurors = 2 # motive altruistic
+    # With opposing witnesses
+    Desire_to_destabilize_the_testimony_of_the_opposing_witness = 3 # emotion_unreliability, 
+    Desire_to_reduce_the_credibility_of_the_opposing_witness = 4 # memory_lapses, trap
+    Desire_to_make_the_jury_question_the_neutrality_of_the_opposing_witness = 5 # motivational_doubts, 
+    Desire_to_discredit_the_testimony_of_the_opposing_witness_by_demonstrating_bias = 6 # bias 
+class LawyerIntentions_Enum(Enum):
+    Intention_to_execute_strategies_to_generate_empathy = 0 # empathy, empathy+motive,
+    Intention_to_present_clear_and_logical_evidence = 1 # clarity, detailed
+    Intention_to_underline_the_moral_duty_of_the_witness_when_testifying = 2 # reluctant
+
+    Intention_to_weaken_contrary_testimony = 3 # mem laps, bias, trap
+    Intention_to_ask_about_possible_benefits_the_witness_could_obtain = 4 # motivational_doubts, 
+    Intention_to_ask_emotionally_provocative_questions = 5 # emotion_unreliablity
+
+class WitnessIntentions_Enum(Enum):
+    # Both
+    Generate_sympathy = 0
+    Convince_jury = 1
+    Provide_detailed_information = 2
+    Show_vulnerability = 3
+    # Own 
+    Strengthen_lawyer_narrative = 4
+    # Opposing 
+    Self_protection = 5
+    Defend_aggressively = 6
+    Keep_calm_under_pressure = 7    
+    Avoid_difficult_questions = 8
+    
+
 def map_features(feat):
     cases = {
-        'Low' : np.random.choice([2,3]),
-        'Middle' : np.random.choice([4,5,6]),
-        'High' : np.random.choice([7,8,9]),
+        Trait_Level.low : np.random.choice([2,3]),
+        Trait_Level.undefined : np.random.choice([4,5,6]),
+        Trait_Level.high : np.random.choice([7,8,9]),
+        "Low" : np.random.choice([2,3]),
+        "Middle" : np.random.choice([4,5,6]),
+        "High" : np.random.choice([7,8,9]),
         'Internal' : np.random.choice([6,7,8,9]),
         'External' : np.random.choice([2,3,4]),
         0 : 'Leader',
@@ -113,3 +152,35 @@ def map_features(feat):
     }
 
     return cases[feat]
+
+def map_intentions(index, is_own):
+    if is_own:
+        cases = {
+            0 : WitnessIntentions_Enum.Generate_sympathy,
+            1 : WitnessIntentions_Enum.Convince_jury,
+            2 : WitnessIntentions_Enum.Provide_detailed_information,
+            3 : WitnessIntentions_Enum.Show_vulnerability,
+            4 : WitnessIntentions_Enum.Strengthen_lawyer_narrative
+        }
+    else:
+        cases = {
+            0 : WitnessIntentions_Enum.Generate_sympathy,
+            1 : WitnessIntentions_Enum.Convince_jury,
+            2 : WitnessIntentions_Enum.Provide_detailed_information,
+            3 : WitnessIntentions_Enum.Show_vulnerability,
+            4 : WitnessIntentions_Enum.Self_protection,
+            5 : WitnessIntentions_Enum.Defend_aggressively,
+            6 : WitnessIntentions_Enum.Keep_calm_under_pressure,
+            7 : WitnessIntentions_Enum.Avoid_difficult_questions
+        }
+
+    return cases[index]
+
+def map_trait_level(trait):
+    cases = {
+        "High" : Trait_Level.high,
+        "Middle" : Trait_Level.undefined,
+        "Low" : Trait_Level.low
+    }
+
+    return cases[trait]

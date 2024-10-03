@@ -16,8 +16,12 @@ def phase_witness_interrogation(testimonies, strategies, lawyer : Lawyer, jurors
 
         context.set_phase(Phase.witness_testimony)
         witness.perceive_world()
-        lawyer.apply_strategy(witness, strategy)
-        update_veracity(jurors, witness, testimony[1])
+        witness.execute_actions()
+
+        context.set_phase(Phase.juror_feedback)
+        context.set_current_fact(testimony[1])
+        for juror in jurors:
+            juror.perceive_world()
 
 def simulate_trial(jurors_strategies, n_jurors, testimonies, jury_pool, lawyer):
     jurors = [j for j in jurors_strategies[:n_jurors]]

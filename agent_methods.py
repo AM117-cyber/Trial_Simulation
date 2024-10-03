@@ -89,6 +89,8 @@ def perceive_world_general(juror: Juror):
         # perceive_world is called in belief_confrontation only if juror.context.message.sender.id != juror.id:
         answer = process_debate_message_general(juror,juror.context.message)
         return answer
+    elif juror.context.phase is Phase.juror_feedback:
+        update_veracity(juror, juror.context.witness_speaking, juror.context.current_fact)
     
 def adjust_others_beliefs_general(juror : Juror, messages : Message):
     for message in messages:
@@ -466,7 +468,7 @@ def update_relevance_fact(juror):
         elif fact.type == Fact_Types.intention:
             fact_dict[fact].relevance = relevance_facts[4]
 
-def update_veracity(jurors, witness, fact):
+def update_veracity(juror, witness, fact):
     matrix_intentions_features = [[0.2, 0.2, 0.7, 0.6, 0.1],
                                   [0.5, 0.2, 0.8, 0.5, 0.0],
                                   [0.6, 0.9, 0.0, 0.1, 0.0],
@@ -476,18 +478,18 @@ def update_veracity(jurors, witness, fact):
                                   [-0.2, -0.8, -0.3, -0.8, -0.9],
                                   [0.1, 0.2, 0.1, 0.1, 0.4],
                                   [-0.1, -0.5, -0.4, -0.3, -0.8]]
-    for juror in jurors:
-        features = [juror.openness, juror.conscientiousness, juror.extraversion, juror.agreeableness, juror.neuroticism]
-        features = [map_features(elem) for elem in features]
-        result = 0
 
-        row = matrix_intentions_features[witness.context.get_witness_intention().value]
-        for i in range(5):
-            if i == 3 and row[i] == (-0.8):
-                result = -8 + 0.8*features[i]
-            else:
-                result += features[i]*row[i]
-        result = result*(-1) if witness.side else result
-        fwv = [juror.beliefs.facts_with_value[f] for f in juror.beliefs.facts_with_value if f.text == fact[0].text][0]
-        fwv.veracity += result
+    features = [juror.openness, juror.conscientiousness, juror.extraversion, juror.agreeableness, juror.neuroticism]
+    features = [map_features(elem) for elem in features]
+    result = 0
+
+    row = matrix_intentions_features[witness.context.get_witness_intention().value]
+    for i in range(5):
+        if i == 3 and row[i] == (-0.8):
+            result = -8 + 0.8*features[i]
+        else:
+            result += features[i]*row[i]
+    result = result*(-1) if witness.side else result
+    fwv = [juror.beliefs.facts_with_value[f] for f in juror.beliefs.facts_with_value if f.text == fact[0].text][0]
+    fwv.veracity += result
     

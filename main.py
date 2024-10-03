@@ -1,6 +1,6 @@
 from lawyer import Lawyer, perceive_world_lawyer
 from agent_methods import perceive_world_general, Juror, vote, update_pool, JurorBeliefs
-from witness import Witness, perceive_world_witness
+from witness import Witness, perceive_world_witness, execute_actions_witness
 from utils import Fact, Fact_Types, Fact_Info, map_trait_level
 from genetic_algorithm import genetic_algorithm
 from environment import SimulationContext
@@ -63,9 +63,9 @@ if __name__ == '__main__':
             Fact(Fact_Types.motive, "El acusado había perdido su trabajo"): Fact_Info(0,0)}
     items_case = list(case.items()) 
 
-    witness1 = Witness(1, perceive_world_witness, None, facts=items_case[:3], age=35, socioeconomic_status="medio", education="high", ineptitude=0.2, side=True)
-    witness2 = Witness(2, perceive_world_witness, None, facts=items_case[3:5], age=50, socioeconomic_status="alto", education="medium", ineptitude=0.4, side=True)
-    witness3 = Witness(3, perceive_world_witness, None, facts=items_case[5:], age=29, socioeconomic_status="bajo", education="low", ineptitude=0.6, side=True)
+    witness1 = Witness(1, perceive_world_witness, execute_actions_witness, facts=items_case[:3], age=35, socioeconomic_status="medio", education="high", ineptitude=0.2, side=True)
+    witness2 = Witness(2, perceive_world_witness, execute_actions_witness, facts=items_case[3:5], age=50, socioeconomic_status="alto", education="medium", ineptitude=0.4, side=True)
+    witness3 = Witness(3, perceive_world_witness, execute_actions_witness, facts=items_case[5:], age=29, socioeconomic_status="bajo", education="low", ineptitude=0.6, side=True)
     
     witnesses = [witness1, witness2, witness3]
     testimonies = [] # testigo, hecho a testificar

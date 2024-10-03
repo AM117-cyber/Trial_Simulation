@@ -1,4 +1,4 @@
-from utils import Phase
+from utils import Phase, StrategiesOwnWitnesses, StrategiesOpposingWitnesses
 
 class SimulationContext:
     _instance = None
@@ -15,6 +15,7 @@ class SimulationContext:
             cls._instance.witness_intention = None
             cls._instance.sequence_of_events = ''
             cls._instance.witness_speaking = None
+            cls._instance.current_fact = None
         return cls._instance
 
     def set_message(self, message):
@@ -69,6 +70,12 @@ class SimulationContext:
 
     def get_witness_speaking(self):
         return self.witness_speaking
+    
+    def set_current_fact(self, fact):
+        self.current_fact = fact
+
+    def get_current_fact(self):
+        return self.current_fact
 # # Accessing the singleton instance
 # context1 = SimulationContext()
 # context2 = SimulationContext()

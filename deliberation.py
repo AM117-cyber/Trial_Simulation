@@ -67,6 +67,8 @@ def simulate_deliberation(jury):
     context.ongoing_strategy = None
     context.witness_intention = None
     context.sequence_of_events = ''
+    context.witness_speaking = None
+    context.current_fact = None
     return (not_guilty,guilty) 
 
 

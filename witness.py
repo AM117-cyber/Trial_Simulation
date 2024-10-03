@@ -19,6 +19,11 @@ class Witness(AgentInterface):
         self.education = education
         self.ineptitude = ineptitude
         self.side = side
+        self.rules = [GenerateEmpathyRule(self.beliefs, self.context), EmpathyGenerationAltruisticMotiveRule(self.beliefs, self.context), 
+                      ChronologicalClarityRule(self.beliefs, self.context), ChronologicalClarityDetailedObservationRule1(self.beliefs, self.context), 
+                      ChronologicalClarityDetailedObservationRule2(self.beliefs, self.context), ReluctantParticipationRule(self.beliefs, self.context), 
+                      MemoryLapsesRule(self.beliefs, self.context), BiasedPerspectiveRule1(self.beliefs, self.context), BiasedPerspectiveRule2(self.beliefs, self.context), 
+                      MotivationalDoubtsRule(self.beliefs, self.context), ContradictionTrapRule(self.beliefs, self.context), EmotionUnreliabilityRule(self.beliefs, self.context)]
         # Predefined values ​​of the relation between witness' emotions and characteristics of jurors
         self.matrix_emotions_features = [[0.8, 0.1, 0.6, 0.9, -0.2],
                                          [0.4, 0.2, 0.4, 1.0, 0.0],
@@ -36,7 +41,7 @@ class Witness(AgentInterface):
         return self.perceive_world_func(self)
 
     def execute_actions(self):
-        return super().execute_actions()
+        return self.execute_action_func(self)
 
 # BDI Architecture   
 class WitnessBeliefs():
@@ -69,8 +74,8 @@ class GenerateEmpathyRule(Rule):
     def __init__(self, beliefs, context):
         super().__init__(beliefs, context)
     def match(self):
-        strategy = self.context.get_ongoing_strategy()
-        strategy = StrategiesOwnWitnesses(strategy) if self.context.witness_speaking.side else StrategiesOpposingWitnesses(strategy)
+        strategy = self.context.witness_speaking.side
+        strategy = StrategiesOwnWitnesses(strategy) if strategy else StrategiesOpposingWitnesses(strategy)
         return self.context.phase is Phase.witness_testimony and strategy == StrategiesOwnWitnesses.Empathy_generation
     def do(self):
         self.context.witness_speaking.beliefs.emotions['empathy'] += 2
@@ -83,8 +88,8 @@ class EmpathyGenerationAltruisticMotiveRule(Rule):
     def __init__(self, beliefs, context):
         super().__init__(beliefs, context)
     def match(self):
-        strategy = self.context.get_ongoing_strategy()
-        strategy = StrategiesOwnWitnesses(strategy) if self.context.witness_speaking.side else StrategiesOpposingWitnesses(strategy)
+        strategy = self.context.witness_speaking.side
+        strategy = StrategiesOwnWitnesses(strategy) if strategy else StrategiesOpposingWitnesses(strategy)
         return self.context.phase is Phase.witness_testimony and strategy == StrategiesOwnWitnesses.Empathy_generation_altruistic_motive
     def do(self):
         self.context.witness_speaking.beliefs.emotions['empathy'] += 2
@@ -93,8 +98,145 @@ class EmpathyGenerationAltruisticMotiveRule(Rule):
         self.context.witness_speaking.beliefs.emotions['responsibility'] += 2
         self.context.witness_speaking.beliefs.emotions['hope'] += 2
 
-# Function to perceive the world and update the beliefs and intentions 
+class ChronologicalClarityRule(Rule):
+    """ Rule to update the emotions of witness with the strategy Chronological clarity"""
+    def __init__(self, beliefs, context):
+        super().__init__(beliefs, context)
+    def match(self):
+        strategy = self.context.witness_speaking.side
+        strategy = StrategiesOwnWitnesses(strategy) if strategy else StrategiesOpposingWitnesses(strategy)
+        return self.context.phase is Phase.witness_testimony and strategy == StrategiesOwnWitnesses.Chronological_clarity
+    def do(self):
+        self.context.witness_speaking.beliefs.emotions['credibility'] += 2
+        self.context.witness_speaking.beliefs.emotions['calm'] += 2
+
+class ChronologicalClarityDetailedObservationRule1(Rule):
+    """ Rule to update the emotions of witness with the strategies Chronological clarity and Detailed observation"""
+    def __init__(self, beliefs, context):
+        super().__init__(beliefs, context)
+    def match(self):
+        strategy = self.context.witness_speaking.side
+        strategy = StrategiesOwnWitnesses(strategy) if strategy else StrategiesOpposingWitnesses(strategy)
+        return self.context.phase is Phase.witness_testimony and strategy == StrategiesOwnWitnesses.Chronological_clarity_detailed_observation
+    def do(self):
+        self.context.witness_speaking.beliefs.emotions['credibility'] += 2
+        self.context.witness_speaking.beliefs.emotions['calm'] += 2
+
+class ChronologicalClarityDetailedObservationRule2(Rule):
+    """ Rule to update the emotions of witness with the strategies Chronological clarity and Detailed observation"""
+    def __init__(self, beliefs, context):
+        super().__init__(beliefs, context)
+    def match(self):
+        strategy = self.context.witness_speaking.side
+        strategy = StrategiesOwnWitnesses(strategy) if strategy else StrategiesOpposingWitnesses(strategy)
+        return self.context.phase is Phase.witness_testimony and strategy == StrategiesOwnWitnesses.Chronological_clarity_detailed_observation \
+               and  (self.context.witness_speaking.ineptitude == 'High' or self.context.witness_speaking.education == 'Low')
+    def do(self):
+        self.context.witness_speaking.beliefs.emotions['frustration'] += 2
+
+class ReluctantParticipationRule(Rule):
+    """ Rule to update the emotions of witness with the strategy Reluctant participation"""
+    def __init__(self, beliefs, context):
+        super().__init__(beliefs, context)
+    def match(self):
+        strategy = self.context.witness_speaking.side
+        strategy = StrategiesOwnWitnesses(strategy) if strategy else StrategiesOpposingWitnesses(strategy)
+        return self.context.phase is Phase.witness_testimony and strategy == StrategiesOwnWitnesses.Reluctant_participation 
+    def do(self):
+        self.context.witness_speaking.beliefs.emotions['responsibility'] += 2
+        self.context.witness_speaking.beliefs.emotions['confidence'] -= 1
+
+class MemoryLapsesRule(Rule):
+    """ Rule to update the emotions of witness with the strategy Memory lapses"""
+    def __init__(self, beliefs, context):
+        super().__init__(beliefs, context)
+    def match(self):
+        strategy = self.context.witness_speaking.side
+        strategy = StrategiesOwnWitnesses(strategy) if strategy else StrategiesOpposingWitnesses(strategy)
+        return self.context.phase is Phase.witness_testimony and strategy == StrategiesOpposingWitnesses.Memory_lapses 
+    def do(self):
+        self.context.witness_speaking.beliefs.emotions['confusion'] += 2
+        self.context.witness_speaking.beliefs.emotions['frustration'] += 2
+        self.context.witness_speaking.beliefs.emotions['shame'] += 2
+        self.context.witness_speaking.beliefs.emotions['credibility'] -= 2
+        self.context.witness_speaking.beliefs.emotions['confidence'] -= 2
+
+class BiasedPerspectiveRule1(Rule):
+    """ Rule to update the emotions of witness with the strategy Biased perspective"""
+    def __init__(self, beliefs, context):
+        super().__init__(beliefs, context)
+    def match(self):
+        strategy = self.context.witness_speaking.side
+        strategy = StrategiesOwnWitnesses(strategy) if strategy else StrategiesOpposingWitnesses(strategy)
+        return self.context.phase is Phase.witness_testimony and strategy == StrategiesOpposingWitnesses.Biased_perspective 
+    def do(self):
+        self.context.witness_speaking.beliefs.emotions['credibility'] -= 2
+
+class BiasedPerspectiveRule2(Rule):
+    """ Rule to update the emotions of witness with the strategy Biased perspective"""
+    def __init__(self, beliefs, context):
+        super().__init__(beliefs, context)
+    def match(self):
+        strategy = self.context.witness_speaking.side
+        strategy = StrategiesOwnWitnesses(strategy) if strategy else StrategiesOpposingWitnesses(strategy)
+        return self.context.phase is Phase.witness_testimony and strategy == StrategiesOpposingWitnesses.Biased_perspective \
+               and  (self.context.witness_speaking.ineptitude == 'High' or self.context.witness_speaking.education == 'Low')
+    def do(self):
+        self.context.witness_speaking.beliefs.emotions['frustration'] += 2
+        self.context.witness_speaking.beliefs.emotions['calm'] -= 2
+        self.context.witness_speaking.beliefs.emotions['shame'] += 2
+
+class MotivationalDoubtsRule(Rule):
+    """ Rule to update the emotions of witness with the strategy Motivational doubts"""
+    def __init__(self, beliefs, context):
+        super().__init__(beliefs, context)
+    def match(self):
+        strategy = self.context.witness_speaking.side
+        strategy = StrategiesOwnWitnesses(strategy) if strategy else StrategiesOpposingWitnesses(strategy)
+        return self.context.phase is Phase.witness_testimony and strategy == StrategiesOpposingWitnesses.Motivational_doubts 
+    def do(self):
+        self.context.witness_speaking.beliefs.emotions['shame'] += 2
+        self.context.witness_speaking.beliefs.emotions['credibility'] -= 2
+        self.context.witness_speaking.beliefs.emotions['confidence'] -= 2
+
+class ContradictionTrapRule(Rule):
+    """ Rule to update the emotions of witness with the strategy Contradiction trap"""
+    def __init__(self, beliefs, context):
+        super().__init__(beliefs, context)
+    def match(self):
+        strategy = self.context.witness_speaking.side
+        strategy = StrategiesOwnWitnesses(strategy) if strategy else StrategiesOpposingWitnesses(strategy)
+        return self.context.phase is Phase.witness_testimony and strategy == StrategiesOpposingWitnesses.Contradiction_trap 
+    def do(self):
+        self.context.witness_speaking.beliefs.emotions['frustration'] += 2
+        self.context.witness_speaking.beliefs.emotions['shame'] += 2
+        self.context.witness_speaking.beliefs.emotions['anger'] += 2
+        self.context.witness_speaking.beliefs.emotions['credibility'] -= 2
+        self.context.witness_speaking.beliefs.emotions['confidence'] -= 2
+
+class EmotionUnreliabilityRule(Rule):
+    """ Rule to update the emotions of witness with the strategy Emotion unreliability"""
+    def __init__(self, beliefs, context):
+        super().__init__(beliefs, context)
+    def match(self):
+        strategy = self.context.witness_speaking.side
+        strategy = StrategiesOwnWitnesses(strategy) if strategy else StrategiesOpposingWitnesses(strategy)
+        return self.context.phase is Phase.witness_testimony and strategy == StrategiesOpposingWitnesses.Emotion_unreliability 
+    def do(self):
+        self.context.witness_speaking.beliefs.emotions['sadness'] += 2
+        self.context.witness_speaking.beliefs.emotions['frustration'] += 2
+        self.context.witness_speaking.beliefs.emotions['shame'] += 2
+        self.context.witness_speaking.beliefs.emotions['calm'] -= 2
+        self.context.witness_speaking.beliefs.emotions['credibility'] -= 2
+        self.context.witness_speaking.beliefs.emotions['confidence'] -= 2
+
+# Function to perceive the world and update the beliefs and intentions
 def perceive_world_witness(witness : Witness):
+    for rule in witness.rules:
+        if rule.match():
+            rule.do()
+
+def execute_actions_witness(witness : Witness):
     if witness.context.phase == Phase.witness_testimony:
         # List of emotions of own witness
         list_own_intentions = [np.array([2,2,1,-1,1,-1,0,1,1,2,1]), # Generate_sympathy

@@ -488,5 +488,6 @@ def update_veracity(jurors, witness, fact):
             else:
                 result += features[i]*row[i]
         result = result*(-1) if witness.side else result
-        juror.beliefs.facts_with_value[fact[0]].veracity += result
+        fwv = [juror.beliefs.facts_with_value[f] for f in juror.beliefs.facts_with_value if f.text == fact[0].text][0]
+        fwv.veracity += result
     

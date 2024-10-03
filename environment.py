@@ -12,9 +12,9 @@ class SimulationContext:
             cls._instance.pooling_speakers_count = 0
             cls._instance.jury_size = 6
             cls._instance.ongoing_strategy = None
-            cls._instance.is_own_witness = None
             cls._instance.witness_intention = None
             cls._instance.sequence_of_events = ''
+            cls._instance.witness_speaking = None
         return cls._instance
 
     def set_message(self, message):
@@ -52,12 +52,6 @@ class SimulationContext:
     def get_ongoing_strategy(self):
         return self.ongoing_strategy
     
-    def set_is_own_witness(self, flag):
-        self.is_own_witness = flag
-    
-    def get_is_own_witness(self):
-        return self.is_own_witness
-    
     def set_witness_intention(self, intention):
         self.witness_intention = intention
 
@@ -69,6 +63,12 @@ class SimulationContext:
 
     def get_sequence_of_events(self):
         return self.sequence_of_events
+    
+    def set_witness_speaking(self, witness):
+        self.witness_speaking = witness
+
+    def get_witness_speaking(self):
+        return self.witness_speaking
 # # Accessing the singleton instance
 # context1 = SimulationContext()
 # context2 = SimulationContext()

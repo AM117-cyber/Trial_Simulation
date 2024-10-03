@@ -102,22 +102,9 @@ class StrategiesOpposingWitnesses(Enum):
 
 class LawyerDesires_Enum(Enum):
     # With own witnesses
-    Desire_to_maximize_witness_credibility = 0 # clarity chronical y clarity + detailed
-    Desire_to_generate_positive_emotions_in_witnesses = 1 # empathy reluctante
-    Desire_to_positively_influence_jurors = 2 # motive altruistic
-    # With opposing witnesses
-    Desire_to_destabilize_the_testimony_of_the_opposing_witness = 3 # emotion_unreliability, 
-    Desire_to_reduce_the_credibility_of_the_opposing_witness = 4 # memory_lapses, trap
-    Desire_to_make_the_jury_question_the_neutrality_of_the_opposing_witness = 5 # motivational_doubts, 
-    Desire_to_discredit_the_testimony_of_the_opposing_witness_by_demonstrating_bias = 6 # bias 
+    Desire_to_win_the_case = 0  
 class LawyerIntentions_Enum(Enum):
-    Intention_to_execute_strategies_to_generate_empathy = 0 # empathy, empathy+motive,
-    Intention_to_present_clear_and_logical_evidence = 1 # clarity, detailed
-    Intention_to_underline_the_moral_duty_of_the_witness_when_testifying = 2 # reluctant
-
-    Intention_to_weaken_contrary_testimony = 3 # mem laps, bias, trap
-    Intention_to_ask_about_possible_benefits_the_witness_could_obtain = 4 # motivational_doubts, 
-    Intention_to_ask_emotionally_provocative_questions = 5 # emotion_unreliablity
+    Intention_to_apply_strategy = 0 
 
 class WitnessIntentions_Enum(Enum):
     # Both
@@ -184,3 +171,12 @@ def map_trait_level(trait):
     }
 
     return cases[trait]
+
+class Rule():
+    def __init__(self, beliefs, context):
+        self.beliefs = beliefs
+        self.context = context
+    def match(self) -> bool:
+        pass
+    def do(self):
+        pass

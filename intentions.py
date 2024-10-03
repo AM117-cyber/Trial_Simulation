@@ -45,7 +45,9 @@ def execute_actions_general(juror:Juror, strength):
         answer[juror.most_relevant_fact] = result
     elif juror.desires.Convince_others_of_my_beliefs:
         juror.desires.Convince_others_of_my_beliefs = False
-        answer = get_my_debate_message_with_value_high_openness(juror)
+        result = get_my_debate_message_with_value_high_openness(juror)
+        answer = result[0]
+        strength = result[1]
     elif juror.desires.Start_debate:
         juror.desires.Start_debate = False
         answer = juror.beliefs.facts
@@ -98,8 +100,8 @@ def get_all_beliefs_to_debate(juror, discrepance_level):
             discrepant_facts_scores += 1
             if fact not in discrepant_facts:
                 discrepant_facts[fact] = juror.beliefs.facts[fact]
-    
-    return [discrepant_facts,discrepant_facts_scores/len(discrepant_facts)]
+    discrepant_facts_scores = 0 if len(discrepant_facts) == 0 else discrepant_facts_scores/len(discrepant_facts)
+    return [discrepant_facts,discrepant_facts_scores]
     
 
 def Share_only_most_relevant_fact_with_my_veracity(juror: Juror):

@@ -34,7 +34,7 @@ def simulate_deliberation(jury):
             for fact in beliefs_to_debate[0].keys():
                 points_to_debate+= fact.text + " - " + beliefs_to_debate[0][fact].name + ", "
             print(f"Juror {current_debater.id} is debating this points: {points_to_debate}")
-            if juror.id != current_debater:
+            if juror.id != current_debater.id:
                 answer = juror.perceive_world()
                 if answer and answer[1] > max_value:
                     context.set_message(Message(juror, answer[0]))
@@ -65,7 +65,6 @@ def simulate_deliberation(jury):
     context.pooling_speakers_count = 0
     context.jury_size = 6
     context.ongoing_strategy = None
-    context.is_own_witness = None
     context.witness_intention = None
     context.sequence_of_events = ''
     return (not_guilty,guilty) 

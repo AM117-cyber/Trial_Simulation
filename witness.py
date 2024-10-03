@@ -1,6 +1,6 @@
 from agent_methods import AgentInterface
 from environment import SimulationContext
-from utils import Phase, map_intentions, WitnessIntentions_Enum
+from utils import Phase, map_intentions, WitnessIntentions_Enum, Rule, StrategiesOwnWitnesses, StrategiesOpposingWitnesses
 import numpy as np
 from sklearn.metrics.pairwise import cosine_similarity
 
@@ -37,7 +37,8 @@ class Witness(AgentInterface):
 
     def execute_actions(self):
         return super().execute_actions()
-    
+
+# BDI Architecture   
 class WitnessBeliefs():
     def __init__(self):
         self.emotions = {
@@ -62,6 +63,37 @@ class WitnessIntentions():
     def __init__(self):
         self.dict = {item : False for item in WitnessIntentions_Enum}
 
+# RULES OF WITNESS
+class GenerateEmpathyRule(Rule):
+    """ Rule to update the emotions of witness with the strategy Generate Empathy"""
+    def __init__(self, beliefs, context):
+        super().__init__(beliefs, context)
+    def match(self):
+        strategy = self.context.get_ongoing_strategy()
+        strategy = StrategiesOwnWitnesses(strategy) if self.context.witness_speaking.side else StrategiesOpposingWitnesses(strategy)
+        return self.context.phase is Phase.witness_testimony and strategy == StrategiesOwnWitnesses.Empathy_generation
+    def do(self):
+        self.context.witness_speaking.beliefs.emotions['empathy'] += 2
+        self.context.witness_speaking.beliefs.emotions['sympathy'] += 2
+        self.context.witness_speaking.beliefs.emotions['confidence'] += 2
+        self.context.witness_speaking.beliefs.emotions['sadness'] += 1
+
+class EmpathyGenerationAltruisticMotiveRule(Rule):
+    """ Rule to update the emotions of witness with the strategies Empathy generation and Altruistic motive"""
+    def __init__(self, beliefs, context):
+        super().__init__(beliefs, context)
+    def match(self):
+        strategy = self.context.get_ongoing_strategy()
+        strategy = StrategiesOwnWitnesses(strategy) if self.context.witness_speaking.side else StrategiesOpposingWitnesses(strategy)
+        return self.context.phase is Phase.witness_testimony and strategy == StrategiesOwnWitnesses.Empathy_generation_altruistic_motive
+    def do(self):
+        self.context.witness_speaking.beliefs.emotions['empathy'] += 2
+        self.context.witness_speaking.beliefs.emotions['credibility'] += 2
+        self.context.witness_speaking.beliefs.emotions['confidence'] += 2
+        self.context.witness_speaking.beliefs.emotions['responsibility'] += 2
+        self.context.witness_speaking.beliefs.emotions['hope'] += 2
+
+# Function to perceive the world and update the beliefs and intentions 
 def perceive_world_witness(witness : Witness):
     if witness.context.phase == Phase.witness_testimony:
         # List of emotions of own witness
@@ -93,33 +125,3 @@ def perceive_world_witness(witness : Witness):
         # Save data of case
         witness.context.sequence_of_events += f'The witness had the intention of {intention.name}.\n'
 
-
-
-
-
-
-
-
-
-
-
-
-# ----------------------------------------------------------------------------------------------
-# "empathy": 0, # empatia
-#             "sympathy": 0, # simpatia
-#             "credibility": 0, # credibilidad
-#             # "coherence": 0, # coherencia 
-#             "confidence": 0, # confianza
-#             # "character" : 0, # caracter
-#             "responsability": 0, # responsabilidad 
-#             "hope" : 0, # esperanza
-#             # "confusion": 0, # confusion
-#             # "anger": 0, # ira 
-#             "frustration": 0, # frustracion
-#             # "doubt": 0, # duda
-#             "calm": 0, # calma 
-#             "fear": 0, # miedo
-#             # "anxiety": 0, # ansiedad
-#             "sadness": 0, # tristeza
-#             "shame": 0, # verguenza
-#             # "compassion": 0 # compasion

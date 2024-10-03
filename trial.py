@@ -2,7 +2,6 @@ from environment import SimulationContext
 from utils import Phase
 from deliberation import simulate_deliberation
 from lawyer import Lawyer
-from agent_methods import update_veracity
 import copy
 
 def phase_witness_interrogation(testimonies, strategies, lawyer : Lawyer, jurors):

@@ -25,7 +25,7 @@ def simulate_deliberation(jury):
     current_debater = foreperson
     time = 0
     beliefs_to_debate = current_debater.perceive_world()
-    while current_debater and time <= len(jury) *20: #si llega a ese límite a dado tiempo a que hablen todos los del jurado 20 veces. time representa la cantidad de intervenciones
+    while current_debater and time <= len(jury) *20: #si llega a ese límite ha dado tiempo a que hablen todos los del jurado 20 veces. time representa la cantidad de intervenciones
         time+=1
         
         max_value = 30 # debating threshold

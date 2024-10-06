@@ -5,6 +5,7 @@ from utils import Fact, Fact_Types, Fact_Info, map_trait_level
 from genetic_algorithm import genetic_algorithm
 from environment import SimulationContext
 from intentions import execute_actions_general
+from test import tester
 import json
 
 def start_simulation(lawyer, testimonies,jury_pool,jury_amount, facts):
@@ -77,3 +78,4 @@ if __name__ == '__main__':
     jury_pool = generate_jury_pool('data.json', case)
 
     start_simulation(lawyer, testimonies, jury_pool, 12, case)
+    tester(jury_pool, testimonies, lawyer, 12)

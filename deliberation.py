@@ -44,6 +44,8 @@ def simulate_deliberation(jury):
                 if answer:
                     print("nn")
                 answer = juror.perceive_world()
+                if answer:
+                    print("nn")
                 if answer and answer[1] > max_value:
                     context.set_message([answer[0]])
                     max_value = answer[1]

@@ -41,7 +41,7 @@ class GeneticAlgorithm:
     
     ## Method for evaluation
     def get_fitness_scores(self):
-        scores = [self.fitness_func(ind, self.n_jurors, self.testimonies, self.jury_pool, self.lawyer) for ind in self.population]
+        scores = [self.fitness_func(ind, self.n_jurors, self.testimonies, self.jury_pool, self.lawyer)[0] for ind in self.population]
         return np.array(scores)
     
     def reset_popular_alleles(self):

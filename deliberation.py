@@ -41,6 +41,8 @@ def simulate_deliberation(jury):
                 points_to_debate+= fact.text + " - " + beliefs_to_debate[fact].name + ", "
             print(f"Juror {current_debater.id} is debating this points: {points_to_debate}")
             if juror.id != current_debater.id:
+                if answer:
+                    print("nn")
                 answer = juror.perceive_world()
                 if answer and answer[1] > max_value:
                     context.set_message([answer[0]])
@@ -76,7 +78,7 @@ def simulate_deliberation(jury):
     context.sequence_of_events = ''
     context.witness_speaking = None
     context.current_fact = None
-    return (not_guilty,guilty) 
+    return (not_guilty,guilty, time) 
 
 
 # fact1 = Fact(Fact_Types.oportunity, "fact1")

@@ -5,6 +5,7 @@ from witness import Witness, perceive_world_witness, execute_actions_witness
 from utils import Fact, Fact_Types, Fact_Info, Roles, map_trait_level
 from genetic_algorithm import genetic_algorithm
 from environment import SimulationContext
+from test import tester
 import json
 
 def start_simulation(lawyer, testimonies,jury_pool,jury_amount, facts):
@@ -93,3 +94,4 @@ if __name__ == '__main__':
     jury_pool= [jury1,jury2,jury3,jury4,jury5,jury6]
 
     start_simulation(lawyer, testimonies, jury_pool, 4, case)
+    tester(jury_pool, testimonies, lawyer, 12)

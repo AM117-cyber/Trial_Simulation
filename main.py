@@ -1,10 +1,10 @@
+from juror import Juror, JurorBeliefs, Rule1, Rule2, Rule3, Rule5, Rule7, Rule8, Rule9, Rule10, Rule11, Rule12, Rule13, Rule14, Rule15, execute_actions_juror, perceive_world_juror
 from lawyer import Lawyer, perceive_world_lawyer
-from agent_methods import perceive_world_general, Juror, vote, update_pool, JurorBeliefs
+from agent_methods import vote, update_pool
 from witness import Witness, perceive_world_witness, execute_actions_witness
-from utils import Fact, Fact_Types, Fact_Info, map_trait_level
+from utils import Fact, Fact_Types, Fact_Info, Roles, map_trait_level
 from genetic_algorithm import genetic_algorithm
 from environment import SimulationContext
-from intentions import execute_actions_general
 import json
 
 def start_simulation(lawyer, testimonies,jury_pool,jury_amount, facts):
@@ -27,8 +27,8 @@ def generate_jury_pool(json_file_path, case):
     jury_pool = []
     for juror_data in jurors_data:
         juror = Juror(
-            perceive_world_func=perceive_world_general,
-            execute_action_func=execute_actions_general,
+            perceive_world_func=perceive_world_juror,
+            execute_action_func=execute_actions_juror,
             vote_function=vote,
             id=juror_data['id'],
             openness=map_trait_level(juror_data['openness']),
@@ -74,6 +74,22 @@ if __name__ == '__main__':
             testimonies.append((wit, fact))
 
     lawyer = Lawyer(perceive_world_lawyer, None, witnesses)
-    jury_pool = generate_jury_pool('data.json', case)
+    assert_rules = [Rule1, Rule5]
+    generate_desires_rules = [Rule2, Rule3, Rule7, Rule8, Rule9, Rule10, Rule11, Rule12, Rule13, Rule14, Rule15]
+    # jury_pool = generate_jury_pool('data.json', case)
+    # Creating 6 instances of the juror class
+    jury1 = Juror(perceive_world_juror, execute_actions_juror, assert_rules, generate_desires_rules , vote, 1,map_trait_level("High"), map_trait_level("Low"), map_trait_level("High"), map_trait_level("Low"), map_trait_level("High"), "Internal", map_trait_level("High"), map_trait_level("High"), map_trait_level("High"), map_trait_level("Low"), "None", 30, "Male", "Asian", map_trait_level("Middle"),JurorBeliefs(case)) 
+    jury1.role = Roles.holdout
+    jury2 = Juror(perceive_world_juror, execute_actions_juror, assert_rules, generate_desires_rules , vote, 2, map_trait_level("Low"), map_trait_level("High"), map_trait_level("Low"), map_trait_level("High"), map_trait_level("Low"), "External", map_trait_level("Low"), map_trait_level("Low"), map_trait_level("Low"), map_trait_level("High"), "Some", 45, "Female", "Caucasian", map_trait_level("High"), JurorBeliefs(case))
+    jury2.role = Roles.follower
+    jury3 = Juror(perceive_world_juror, execute_actions_juror, assert_rules, generate_desires_rules , vote, 3,map_trait_level("High"), map_trait_level("High"), map_trait_level("Low"), map_trait_level("Low"), map_trait_level("High"), "Internal", map_trait_level("High"), map_trait_level("Low"), map_trait_level("High"), map_trait_level("Low"), "None", 25, "Male", "African American", map_trait_level("Low"),JurorBeliefs(case))
+    jury3.role = Roles.filler
+    jury4 = Juror(perceive_world_juror, execute_actions_juror, assert_rules, generate_desires_rules , vote, 4, map_trait_level("Low"), map_trait_level("Low"), map_trait_level("High"), map_trait_level("High"), map_trait_level("Low"), "External", map_trait_level("Low"), map_trait_level("High"), map_trait_level("Low"), map_trait_level("High"), "Some", 35, "Female", "Hispanic", map_trait_level("Middle"),JurorBeliefs(case))
+    jury4.role = Roles.follower
+    jury5 = Juror(perceive_world_juror, execute_actions_juror, assert_rules, generate_desires_rules , vote, 5,map_trait_level("High"), map_trait_level("Low"), map_trait_level("High"), map_trait_level("High"), map_trait_level("Low"), "Internal", map_trait_level("High"), map_trait_level("High"), map_trait_level("High"), map_trait_level("Low"), "None", 40, "Male", "Asian", map_trait_level("High"),JurorBeliefs(case))
+    jury5.role = Roles.leader #leader
+    jury6 = Juror(perceive_world_juror, execute_actions_juror, assert_rules, generate_desires_rules , vote, 6, map_trait_level("Low"), map_trait_level("High"), map_trait_level("Low"), map_trait_level("High"), map_trait_level("Low"), "External", map_trait_level("Low"), map_trait_level("Low"), map_trait_level("Low"), map_trait_level("High"), "Some", 50, "Female", "Caucasian", map_trait_level("Low"),JurorBeliefs(case))
+    jury6.role = Roles.follower
+    jury_pool= [jury1,jury2,jury3,jury4,jury5,jury6]
 
-    start_simulation(lawyer, testimonies, jury_pool, 12, case)
+    start_simulation(lawyer, testimonies, jury_pool, 4, case)

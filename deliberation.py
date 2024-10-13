@@ -1,6 +1,5 @@
 from LLM_use import Trial_summary_generator
-from agent_methods import Juror, JurorBeliefs, get_facts_in_format, order_for_info_pooling, perceive_world_general, set_foreperson, vote
-from intentions import execute_actions_general
+from agent_methods import order_for_info_pooling, set_foreperson
 from utils import Debating_points, Fact, Fact_Info, Fact_Types, Info_pooling_data, Message, Phase, Roles, Testimony_Impressions, Vote
 from environment import SimulationContext
 
@@ -8,7 +7,7 @@ def simulate_deliberation(jury):
     context = SimulationContext()
     context.set_phase(Phase.info_pooling)
     foreperson = set_foreperson(jury)
-    print(f"Foreperson is : {foreperson.id}")
+    print(f"Foreperson is : juror {foreperson.id}")
     jury = order_for_info_pooling(jury)
     for juror in jury:
         context.set_juror_to_speak(juror.id)
@@ -16,38 +15,46 @@ def simulate_deliberation(jury):
         juror.perceive_world()
     # all jurors shared their beliefs
     context.set_juror_to_speak(-1)
+    print("Creencias compartidas en info pooling:")
+    for messsage in context.message:
+        beliefs = ""
+        for fact, value in messsage.beliefs_debated.items():
+            beliefs += fact.text + value.name
+        print(f"{messsage.sender_juror.id}: {beliefs}")
     for juror in jury:
         juror.perceive_world()
     print(Phase.belief_confrontation)
     context.set_phase(Phase.belief_confrontation)
-    context.set_message(None)
+    context.set_message([])
     # asumamos que foreperson siempre inicia el debate
     current_debater = foreperson
     time = 0
-    beliefs_to_debate = current_debater.perceive_world()
+    context.set_message([current_debater.perceive_world()[0]])
+    beliefs_to_debate = context.message[0].beliefs_debated
     while current_debater and time <= len(jury) *20: #si llega a ese límite ha dado tiempo a que hablen todos los del jurado 20 veces. time representa la cantidad de intervenciones
         time+=1
         
         max_value = 30 # debating threshold
         for juror in jury:
             points_to_debate = ""
-            for fact in beliefs_to_debate[0].keys():
-                points_to_debate+= fact.text + " - " + beliefs_to_debate[0][fact].name + ", "
+            for fact in beliefs_to_debate.keys():
+                points_to_debate+= fact.text + " - " + beliefs_to_debate[fact].name + ", "
             print(f"Juror {current_debater.id} is debating this points: {points_to_debate}")
             if juror.id != current_debater.id:
                 answer = juror.perceive_world()
                 if answer and answer[1] > max_value:
-                    context.set_message(Message(juror, answer[0]))
+                    context.set_message([answer[0]])
                     max_value = answer[1]
         if max_value <= 30: # no ha cambiado, entonces no hay persona que continúe el debate
             break
-        current_debater = context.message.sender_juror
-        beliefs_to_debate = context.message.beliefs_debated
+        current_debater = context.message[0].sender_juror
+        beliefs_to_debate = context.message[0].beliefs_debated
+    not_guilty = 0
+    guilty = 0
     for juror in jury:
         # desire to hide my opinion
         vote = juror.vote()
-        not_guilty = 0
-        guilty = 0
+
         if vote is Vote.not_guilty:
             not_guilty +=1
         else:

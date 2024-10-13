@@ -3,10 +3,10 @@ from collections import Counter
 import random
 from typing import List
 
-from desires import Desires
+
 from environment import SimulationContext
-from utils import Gender, Message, Phase, Roles, S_Status, Trait_Level, Veracity, Vote, map_features, Fact_Types
-from expert_system_role import ExpertSystem
+from utils import Gender, Message, Other_juror_belief, Phase, Roles, S_Status, Trait_Level, Veracity, Vote, map_features, Fact_Types
+# from expert_system_role import ExpertSystem
 class AgentInterface(ABC):
     """Abstract base class for agent interfaces."""
     @abstractmethod
@@ -20,43 +20,43 @@ class AgentInterface(ABC):
         pass
 
 
-class JurorBeliefs():
-    def __init__(self, facts):
+# class JurorBeliefs():
+#     def __init__(self, facts):
 
-        self.facts = get_facts_in_format(facts)
-        self.facts_with_value = facts
-        self.other_jurors_beliefs = {}
-        self.majority_opinion = None
-        self.esteem_for_others = {}
+#         self.facts = get_facts_in_format(facts)
+#         self.facts_with_value = facts
+#         self.other_jurors_beliefs = {}
+#         self.majority_opinion = None
+#         self.esteem_for_others = {}
 
-class Juror(AgentInterface):
-    def __init__(self,perceive_world_func,execute_action_func, vote_function, id, openness, conscientiousness, extraversion, agreeableness, neuroticism, locus_of_control, social_norms, value_emotional_exp, takes_risks, takes_decisions_by_fear, bias, age, gender, race, socioeconomic_status, beliefs: JurorBeliefs):
-        self.context = SimulationContext()
-        self.id = id
-        self.beliefs = beliefs
-        self.desires = Desires()
-        self.openness = openness
-        self.conscientiousness = conscientiousness
-        self.extraversion = extraversion
-        self.agreeableness = agreeableness
-        self.neuroticism = neuroticism
-        self.locus_of_control = locus_of_control
-        self.social_norms = social_norms
-        self.value_emotional_exp = value_emotional_exp
-        self.takes_risks = takes_risks
-        self.takes_decisions_by_fear = takes_decisions_by_fear
-        self.bias = bias
-        self.gender = gender
-        self.age = age
-        self.race = race
-        self.socioeconomic_status = socioeconomic_status
-        self.perceive_world_func = perceive_world_func
-        self.execute_action_func = execute_action_func
-        self.is_foreperson = False
-        self.role = None
-        self.most_relevant_fact = None
-        self.juror_to_interact_with = None
-        self.vote_function = vote_function
+# class Juror(AgentInterface):
+#     def __init__(self,perceive_world_func,execute_action_func, vote_function, id, openness, conscientiousness, extraversion, agreeableness, neuroticism, locus_of_control, social_norms, value_emotional_exp, takes_risks, takes_decisions_by_fear, bias, age, gender, race, socioeconomic_status, beliefs: JurorBeliefs):
+#         self.context = SimulationContext()
+#         self.id = id
+#         self.beliefs = beliefs
+#         self.desires = Desires()
+#         self.openness = openness
+#         self.conscientiousness = conscientiousness
+#         self.extraversion = extraversion
+#         self.agreeableness = agreeableness
+#         self.neuroticism = neuroticism
+#         self.locus_of_control = locus_of_control
+#         self.social_norms = social_norms
+#         self.value_emotional_exp = value_emotional_exp
+#         self.takes_risks = takes_risks
+#         self.takes_decisions_by_fear = takes_decisions_by_fear
+#         self.bias = bias
+#         self.gender = gender
+#         self.age = age
+#         self.race = race
+#         self.socioeconomic_status = socioeconomic_status
+#         self.perceive_world_func = perceive_world_func
+#         self.execute_action_func = execute_action_func
+#         self.is_foreperson = False
+#         self.role = None
+#         self.most_relevant_fact = None
+#         self.juror_to_interact_with = None
+#         self.vote_function = vote_function
 
     def confidence_level(self, facts):
         return sum(abs(level.veracity) for level in facts.values())
@@ -78,7 +78,7 @@ class Juror(AgentInterface):
     def vote(self):
         return self.vote_function(self)
 
-def perceive_world_general(juror: Juror):
+def perceive_world_general(juror):
     """Basic way of perceiving the world for a juror"""
     if juror.context.phase is Phase.info_pooling:
         if juror.context.juror_to_speak != juror.id:
@@ -91,17 +91,23 @@ def perceive_world_general(juror: Juror):
         return answer
     elif juror.context.phase is Phase.juror_feedback:
         update_veracity(juror, juror.context.witness_speaking, juror.context.current_fact)
-    
-def adjust_others_beliefs_general(juror : Juror, messages : Message):
+
+def get_other_juror_belief_with_discrepancy(juror, beliefs):
+    answer = {}
+    for fact in beliefs.keys():
+        answer[fact] = Other_juror_belief(juror, beliefs[fact], juror.beliefs.facts[fact])
+    return answer
+
+def adjust_others_beliefs_general(juror, messages : Message):
     for message in messages:
-        juror.beliefs.other_jurors_beliefs[message.sender_juror] = message.beliefs_debated
+        juror.beliefs.other_jurors_beliefs[message.sender_juror] =  get_other_juror_belief_with_discrepancy(juror, message.beliefs_debated)
         juror.beliefs.esteem_for_others[message.sender_juror] = get_esteem_for_someone(juror, message.sender_juror)
 
-def share_beliefs_general(juror: Juror):
+def share_beliefs_general(juror):
     juror.context.append_message(Message(juror,juror.beliefs.facts)) 
     juror.context.pooling_speakers_count +=1
 
-def process_debate_message_general(juror : Juror, message : Message):
+def process_debate_message_general(juror, message : Message):
     if juror.is_foreperson and not juror.context.message:
         # return my beliefs
         juror.desires.Start_debate = True
@@ -205,7 +211,7 @@ def get_most_relevant_fact(facts):
             curr_rel_fact = fact
     return curr_rel_fact
 
-def get_fact_disagreement(juror: Juror,fact):
+def get_fact_disagreement(juror,fact):
     disagreeing_jurors = 0
     fact_opinion_level = juror.beliefs.facts[fact].name
     for juror in juror.beliefs.other_jurors_beliefs.keys():
@@ -214,7 +220,7 @@ def get_fact_disagreement(juror: Juror,fact):
     return disagreeing_jurors/len(juror.beliefs.other_jurors_beliefs.keys())
 
 
-def get_common_belief_different_from_yours(juror: Juror, threshold=0.83):
+def get_common_belief_different_from_yours(juror, threshold=0.83):
     """
     Find facts where the most common veracity among other jurors differs from the given juror's belief,
     occurring in at least threshold percent of other jurors.
@@ -281,7 +287,7 @@ def get_common_belief_different_from_yours(juror: Juror, threshold=0.83):
 #         answer =  get_my_debate_message_with_value_high_openness(juror)
 #     return answer
 
-def calculate_belief_similarity(juror: Juror, sender_juror: Juror, facts):
+def calculate_belief_similarity(juror, sender_juror, facts):
     debated_beliefs_similarity = 2 * len(facts.keys()) 
     for fact in facts:
         difference = abs(juror.beliefs.other_jurors_beliefs[sender_juror][fact].value - facts[fact].value)
@@ -290,7 +296,7 @@ def calculate_belief_similarity(juror: Juror, sender_juror: Juror, facts):
   
 
     
-def get_esteem_for_someone(juror: Juror, sender_juror: Juror):
+def get_esteem_for_someone(juror, sender_juror):
     esteem = 0
     if sender_juror.is_foreperson:
         esteem +=5
@@ -303,7 +309,7 @@ def get_esteem_for_someone(juror: Juror, sender_juror: Juror):
     return esteem
 
 
-def get_some_beliefs_to_debate(juror: Juror, discrepance_level):
+def get_some_beliefs_to_debate(juror, discrepance_level):
     """without considering majority or middle ground"""
     valid_facts_scores = 0
     valid_facts = {}
@@ -428,8 +434,8 @@ def vote(juror):
 
 def update_pool(jury_pool):
     for juror in jury_pool:
-        expert = ExpertSystem(juror)
-        juror.role = expert.role
+        # expert = ExpertSystem(juror)
+        # juror.role = expert.role
         update_relevance_fact(juror)
 
 def update_relevance_fact(juror):

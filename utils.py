@@ -1,6 +1,8 @@
 from enum import Enum
 import numpy as np
 
+
+
 class Vote(Enum):
     guilty = 0
     not_guilty = 1
@@ -80,6 +82,12 @@ class Message():
     def __init__(self,sender_juror, content):
         self.sender_juror = sender_juror
         self.beliefs_debated = content # beliefs the juror wants to discuss
+    
+class Other_juror_belief():
+    def __init__(self,juror, belief, juror_opinion):
+        self.value = belief.value
+        self.name = belief.name
+        self.discrepancy = abs(juror_opinion.value - self.value)
 
 class Veracity(Enum):
     HIGH = 3
@@ -180,3 +188,20 @@ class Rule():
         pass
     def do(self):
         pass
+
+class Rule_mine():
+    def match(self,juror) -> bool:
+        pass
+    def do(self,juror):
+        pass
+
+class Juror_desires(Enum):
+        Strengthen_veracity_of_most_relevant_fact = 1
+        Diminish_veracity_of_poorly_explained_fact = 2 # if the veracity is very close to 0 (the juror is highly uncertain) and the relevance is very low, under 20%, then for the trial to be just assume that the fact is false
+        Reach_consensus_on_most_relevant_fact = 3 # insist in that fact until everyone has the same opinion on it
+        Support_a_jurors_beliefs = 4
+        Contradict_a_jurors_beliefs = 5
+        Convince_others_of_my_beliefs = 6
+        Share_my_beliefs = 7
+        Support_big_majority = 8
+        Start_debate = 9

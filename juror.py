@@ -21,7 +21,7 @@ class Juror(AgentInterface):
         self.context = SimulationContext()
         self.id = id
         self.beliefs = beliefs
-        self.desires = {}
+        self.desires = {Juror_desires.Support_a_jurors_beliefs: 0} # inicializar restantes
         self.assert_rules = assert_rules
         self.generate_desires_rules = generate_desires_rules
         self.openness = openness
@@ -94,13 +94,23 @@ class Rule5(Rule_mine):
             debated_beliefs_similarity -= speaker_opinions[juror_belief].discrepancy
         debated_beliefs_similarity += juror.beliefs.esteem_for_others[speaker]
         my_opinions = juror.beliefs.facts_with_value
-        for fact in my_opinions.keys():
-            if juror.beliefs.facts[fact].value > speaker_opinions[fact].value:
+        for fact in message.beliefs_debated.keys():
+            if juror.beliefs.facts[fact].value > message.beliefs_debated[fact].value:
                 my_opinions[fact].veracity -= debated_beliefs_similarity
             else:
                 my_opinions[fact].veracity += debated_beliefs_similarity
             juror.update_facts_level(my_opinions[fact].veracity, fact)   
 
+class Rule6(Rule_mine):
+    """ Rule to update discrepancies once the opinions of others have made me change mine"""
+
+    def match(juror):
+        return juror.context.phase is Phase.belief_confrontation and juror.context.message
+    def do(juror):
+        for other_juror in juror.beliefs.other_jurors_beliefs.keys():
+            for fact in juror.beliefs.other_jurors_beliefs[other_juror].keys():
+                discrepancy = abs(juror.beliefs.facts[fact].value - juror.beliefs.other_jurors_beliefs[other_juror][fact].value)
+                juror.beliefs.other_jurors_beliefs[other_juror][fact].discrepancy = discrepancy
 class Rule2(Rule_mine):
     """ Rule to express beliefs in info pooling"""
 
@@ -126,7 +136,7 @@ class Rule7(Rule_mine):
             return juror.role is Roles.leader
         return False
     def do(juror):
-        prob = random.randint(3,10)
+        prob = random.randint(20,39)
         juror.desires[Juror_desires.Convince_others_of_my_beliefs] = prob
 
 class Rule8(Rule_mine):
@@ -138,7 +148,7 @@ class Rule8(Rule_mine):
         return False
     def do(juror):
         prob = random.randint(1,3)
-        juror.desires[Juror_desires.Support_a_jurors_beliefs] = prob + juror.beliefs.esteem_for_others[juror.context.message[0].sender_juror]
+        juror.desires[Juror_desires.Support_a_jurors_beliefs] += prob + 2*(juror.beliefs.esteem_for_others[juror.context.message[0].sender_juror])
 
 class Rule9(Rule_mine):
     """ Rule to update beliefs and discrepancy about other jurors in belief confrontation"""
@@ -148,11 +158,11 @@ class Rule9(Rule_mine):
             juror.debated_beliefs_similarity = 0
         
             for belief, value in juror.context.message[0].beliefs_debated.items():
-                juror.debated_beliefs_similarity += Veracity.HIGH.value - juror.beliefs.other_jurors_beliefs[juror.context.message[0].sender_juror][belief].value
+                juror.debated_beliefs_similarity += Veracity.HIGH.value - juror.beliefs.other_jurors_beliefs[juror.context.message[0].sender_juror][belief].discrepancy
             return juror.role is Roles.follower and juror.beliefs.esteem_for_others[juror.context.message[0].sender_juror] >= 10 and juror.debated_beliefs_similarity >= 5
         return False
     def do(juror):
-        juror.desires[Juror_desires.Support_a_jurors_beliefs] = juror.debated_beliefs_similarity + (juror.beliefs.esteem_for_others[juror.context.message[0].sender_juror])/2
+        juror.desires[Juror_desires.Support_a_jurors_beliefs] += juror.debated_beliefs_similarity + (juror.beliefs.esteem_for_others[juror.context.message[0].sender_juror])/2
 
 class Rule10(Rule_mine):
     """ Rule to update beliefs and discrepancy about other jurors in belief confrontation"""
@@ -166,7 +176,7 @@ class Rule10(Rule_mine):
             return juror.extraversion is Trait_Level.high and len(result) > 0
         return False
     def do(juror):
-        juror.desires[Juror_desires.Support_a_jurors_beliefs] = juror.beliefs.esteem_for_others[juror.beliefs.juror_to_support] + 3
+        juror.desires[Juror_desires.Support_a_jurors_beliefs] += juror.beliefs.esteem_for_others[juror.beliefs.juror_to_support] + 3
 
 class Rule11(Rule_mine):
     """ Rule to update beliefs and discrepancy about other jurors in belief confrontation"""
@@ -175,15 +185,16 @@ class Rule11(Rule_mine):
         if juror.context.phase is Phase.belief_confrontation and juror.context.message:
             highest_discrepancy_value = 5
             most_discrepant_jurors = []
-            for juror in juror.beliefs.other_jurors_beliefs.keys():
+            for other_juror in juror.beliefs.other_jurors_beliefs.keys():
                 total = 0
-                for fact in juror.beliefs.other_jurors_beliefs[juror].keys():
-                    total += juror.beliefs.other_jurors_beliefs[juror][fact].discrepancy
+                for fact in juror.beliefs.other_jurors_beliefs[other_juror].keys():
+                    total += juror.beliefs.other_jurors_beliefs[other_juror][fact].discrepancy
+                if total == highest_discrepancy_value:
+                    most_discrepant_jurors.append(other_juror)
                 if total > highest_discrepancy_value:
                     highest_discrepancy_value = total
-                    most_discrepant_jurors = [juror]
-                if total == highest_discrepancy_value:
-                    most_discrepant_jurors.append(juror)
+                    most_discrepant_jurors = [other_juror]
+
             if most_discrepant_jurors:
                 tmp = random.randint(0, len(most_discrepant_jurors)-1)
                 juror.beliefs.juror_to_contradict = most_discrepant_jurors[tmp]
@@ -203,7 +214,7 @@ class Rule12(Rule_mine):
             most_relevant_fact = get_most_relevant_fact(juror.beliefs.facts_with_value)
             juror.beliefs.confidence_on_most_relevant_fact = abs(juror.beliefs.facts_with_value[most_relevant_fact].veracity)
             juror.disagreeing_jurors = get_fact_disagreement(juror,most_relevant_fact)
-            return juror.role is Roles.holdout or juror.role is Roles.negotiator or juror.role is Roles.leader and juror.beliefs.confidence_on_most_relevant_fact >= 30 and juror.disagreeing_jurors >= 0.4
+            return (juror.role is Roles.holdout or juror.role is Roles.negotiator or juror.role is Roles.leader) and (juror.beliefs.confidence_on_most_relevant_fact >= 28 and juror.disagreeing_jurors >= 0.4)
         return False
     def do(juror):
         juror.desires[Juror_desires.Strengthen_veracity_of_most_relevant_fact] = juror.beliefs.confidence_on_most_relevant_fact
@@ -220,7 +231,7 @@ class Rule13(Rule_mine):
             
             juror.beliefs.confidence_on_most_relevant_fact = abs(juror.beliefs.facts_with_value[juror.most_relevant_fact].veracity)
             juror.disagreeing_jurors = get_fact_disagreement(juror,juror.most_relevant_fact)
-            return juror.role is Roles.negotiator and juror.beliefs.confidence_on_most_relevant_fact >= 30 and juror.disagreeing_jurors >= 0.3
+            return juror.role is Roles.negotiator and juror.beliefs.confidence_on_most_relevant_fact >= 28 and juror.disagreeing_jurors >= 0.3
         return False
     def do(juror):
         juror.desires[Juror_desires.Reach_consensus_on_most_relevant_fact] = juror.beliefs.confidence_on_most_relevant_fact + 10
@@ -234,10 +245,10 @@ class Rule14(Rule_mine):
         if juror.context.phase is Phase.belief_confrontation and juror.context.message:
             common_belief = get_common_belief_different_from_yours(juror,8.3)
             juror.beliefs.common_belief = common_belief
-            return common_belief and juror.role is Roles.follower
+            return common_belief and juror.role is Roles.filler
         return False
     def do(juror):
-        juror.desires[Juror_desires.Support_big_majority] = 30 + len(juror.beliefs.common_belief.keys())
+        juror.desires[Juror_desires.Support_big_majority] = 26 + len(juror.beliefs.common_belief.keys())
 
 class Rule15(Rule_mine):
     """ Rule to update beliefs and discrepancy about other jurors in belief confrontation"""
@@ -261,7 +272,9 @@ def perceive_world_juror(juror : Juror):
 def filter_desires(desires):
     if len(desires) > 0:
         result = sorted([key for key, value in desires.items() if value > 0], key=lambda k: desires[k], reverse=True)
-        if len(result) < 3:
+        if not len(result):
+            return None
+        if len(result)< 3:
             return result[0]
         tmp = random.randint(0, 2)
         return result[tmp]
@@ -272,9 +285,10 @@ def execute_actions_juror(juror: Juror, desire: Juror_desires):
     answer = {}
     if not desire:
         return [answer, 0]
+    strength = juror.desires[desire]
     if desire is Juror_desires.Contradict_a_jurors_beliefs:
-        for fact in juror.context.message.beliefs_debated:
-            if juror.context.message.beliefs_debated[fact] is Veracity.HIGH or juror.context.message.beliefs_debated[fact] is Veracity.UNCERTAIN:
+        for fact in juror.context.message[0].beliefs_debated:
+            if juror.context.message[0].beliefs_debated[fact] is Veracity.HIGH or juror.context.message[0].beliefs_debated[fact] is Veracity.UNCERTAIN:
                 answer[fact] = Veracity.LOW
             else:
                 answer[fact] = Veracity.HIGH
@@ -289,14 +303,21 @@ def execute_actions_juror(juror: Juror, desire: Juror_desires):
         for other_juror in juror.beliefs.other_jurors_beliefs:
             avg += juror.beliefs.other_jurors_beliefs[other_juror][juror.most_relevant_fact].value
         result = round(avg/(len(juror.beliefs.other_jurors_beliefs.keys()) + 1))
-        answer[juror.most_relevant_fact] = result
+        if result < -15:
+            answer[juror.most_relevant_fact] = Veracity.LOW
+        elif result > 15:
+            answer[juror.most_relevant_fact] = Veracity.HIGH
+        else:
+            answer[juror.most_relevant_fact] = Veracity.UNCERTAIN
     elif desire is Juror_desires.Convince_others_of_my_beliefs:
         result = get_my_debate_message_with_value_high_openness(juror)
         answer = result[0]
-        strength = result[1]
+        strength += result[1]
     elif desire is Juror_desires.Start_debate:
         answer = juror.beliefs.facts
-    return[Message(juror,answer), juror.desires[desire]]
+    for des in juror.desires:
+        juror.desires[des] = 0
+    return[Message(juror,answer), strength]
     
 # def execute_actions_general(juror:Juror, strength):
 #     answer = {}
@@ -359,8 +380,10 @@ def get_some_beliefs_to_debate(juror: Juror, discrepance_level):
     valid_facts_scores = 0
     valid_facts = {}
     for fact in juror.beliefs.facts.keys():
-        for juror in juror.beliefs.other_jurors_beliefs.keys():
-            difference = abs(juror.beliefs.other_jurors_beliefs[juror][fact].value - juror.beliefs.facts[fact].value)
+        for other_juror in juror.beliefs.other_jurors_beliefs.keys():
+            if not fact in juror.beliefs.other_jurors_beliefs[other_juror]:
+                continue
+            difference = abs(juror.beliefs.other_jurors_beliefs[other_juror][fact].value - juror.beliefs.facts[fact].value)
             if difference != discrepance_level.value:
                 continue
             valid_facts_scores += 1
@@ -369,12 +392,14 @@ def get_some_beliefs_to_debate(juror: Juror, discrepance_level):
     return [valid_facts,valid_facts_scores/len(valid_facts)]
 
 def get_all_beliefs_to_debate(juror, discrepance_level):
-    """without considering majority or middle ground"""
     discrepant_facts_scores = 0
     discrepant_facts = {}
     for fact in juror.beliefs.facts.keys():
         for other_juror in juror.beliefs.other_jurors_beliefs.keys():
-            difference = abs(juror.beliefs.other_jurors_beliefs[other_juror][fact].value - juror.beliefs.facts[fact].value)
+            difference = 0
+            if fact in juror.beliefs.other_jurors_beliefs[other_juror]:
+                difference = abs(juror.beliefs.other_jurors_beliefs[other_juror][fact].value - juror.beliefs.facts[fact].value)
+            
             if not difference:
                 continue
             discrepant_facts_scores += 1

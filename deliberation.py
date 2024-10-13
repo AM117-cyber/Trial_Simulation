@@ -19,7 +19,7 @@ def simulate_deliberation(jury):
     for messsage in context.message:
         beliefs = ""
         for fact, value in messsage.beliefs_debated.items():
-            beliefs += fact.text + value.name
+            beliefs += fact.text + " " + value.name
         print(f"{messsage.sender_juror.id}: {beliefs}")
     for juror in jury:
         juror.perceive_world()
@@ -34,22 +34,20 @@ def simulate_deliberation(jury):
     while current_debater and time <= len(jury) *20: #si llega a ese límite ha dado tiempo a que hablen todos los del jurado 20 veces. time representa la cantidad de intervenciones
         time+=1
         
-        max_value = 30 # debating threshold
+        max_value = 28 # debating threshold
         for juror in jury:
             points_to_debate = ""
             for fact in beliefs_to_debate.keys():
                 points_to_debate+= fact.text + " - " + beliefs_to_debate[fact].name + ", "
             print(f"Juror {current_debater.id} is debating this points: {points_to_debate}")
             if juror.id != current_debater.id:
-                if answer:
-                    print("nn")
                 answer = juror.perceive_world()
                 if answer:
                     print("nn")
                 if answer and answer[1] > max_value:
                     context.set_message([answer[0]])
                     max_value = answer[1]
-        if max_value <= 30: # no ha cambiado, entonces no hay persona que continúe el debate
+        if max_value <= 28: # no ha cambiado, entonces no hay persona que continúe el debate
             break
         current_debater = context.message[0].sender_juror
         beliefs_to_debate = context.message[0].beliefs_debated

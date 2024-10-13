@@ -100,8 +100,9 @@ def get_other_juror_belief_with_discrepancy(juror, beliefs):
 
 def adjust_others_beliefs_general(juror, messages : Message):
     for message in messages:
-        juror.beliefs.other_jurors_beliefs[message.sender_juror] =  get_other_juror_belief_with_discrepancy(juror, message.beliefs_debated)
-        juror.beliefs.esteem_for_others[message.sender_juror] = get_esteem_for_someone(juror, message.sender_juror)
+        if message.sender_juror.id != juror.id:
+            juror.beliefs.other_jurors_beliefs[message.sender_juror] =  get_other_juror_belief_with_discrepancy(juror, message.beliefs_debated)
+            juror.beliefs.esteem_for_others[message.sender_juror] = get_esteem_for_someone(juror, message.sender_juror)
 
 def share_beliefs_general(juror):
     juror.context.append_message(Message(juror,juror.beliefs.facts)) 
@@ -214,8 +215,8 @@ def get_most_relevant_fact(facts):
 def get_fact_disagreement(juror,fact):
     disagreeing_jurors = 0
     fact_opinion_level = juror.beliefs.facts[fact].name
-    for juror in juror.beliefs.other_jurors_beliefs.keys():
-        if juror.beliefs.other_jurors_beliefs[juror][fact].name != fact_opinion_level:
+    for other_juror in juror.beliefs.other_jurors_beliefs.keys():
+        if juror.beliefs.other_jurors_beliefs[other_juror][fact].name != fact_opinion_level:
             disagreeing_jurors +=1
     return disagreeing_jurors/len(juror.beliefs.other_jurors_beliefs.keys())
 
@@ -236,21 +237,25 @@ def get_common_belief_different_from_yours(juror, threshold=0.83):
     # Get the total number of other jurors
     
     discrepant_facts = {}
-    
-    for fact in set(fact for beliefs in juror.beliefs.other_jurors_beliefs.values() for fact in beliefs):
-        # Count occurrences of each veracity for this fact across all jurors except the given one
-        veracity_counts = Counter(belief for name, belief in juror.beliefs.facts.items())
-        
-        # Find the most common veracity
-        most_common_veracity = veracity_counts.most_common(1)[0]
-        
+    for fact in juror.beliefs.facts.keys():
+        fact_beliefs = {Veracity.HIGH.name: 0, Veracity.UNCERTAIN.name: 0,Veracity.LOW.name: 0}
+        for other_juror in juror.beliefs.other_jurors_beliefs.keys():
+            if fact in juror.beliefs.other_jurors_beliefs[other_juror]:
+                veracity = juror.beliefs.other_jurors_beliefs[other_juror][fact]
+                fact_beliefs[veracity.name] +=1       
+        tmp = max(fact_beliefs, key = fact_beliefs.get)
+ 
         # Calculate the percentage of agreement
-        agreement_percentage = most_common_veracity[1] / juror.context.jury_size
+        agreement_percentage = fact_beliefs[tmp] / juror.context.jury_size
         
         # Check if the most common veracity meets the threshold and differs from the given juror's belief
-        if agreement_percentage >= threshold:
-            if most_common_veracity[0] != juror.beliefs.facts[fact]:
-                discrepant_facts[fact] = most_common_veracity[0]
+        if agreement_percentage >= threshold and tmp != juror.beliefs.facts[fact].name:
+                value = Veracity.HIGH
+                if tmp is Veracity.LOW.name:
+                    value = Veracity.LOW
+                if tmp is Veracity.UNCERTAIN.name:
+                    value = Veracity.UNCERTAIN
+                discrepant_facts[fact] = [value, fact_beliefs[tmp]]
     
     return discrepant_facts
 
@@ -309,49 +314,9 @@ def get_esteem_for_someone(juror, sender_juror):
     return esteem
 
 
-def get_some_beliefs_to_debate(juror, discrepance_level):
-    """without considering majority or middle ground"""
-    valid_facts_scores = 0
-    valid_facts = {}
-    for fact in juror.beliefs.facts.keys():
-        for juror in juror.beliefs.other_jurors_beliefs.keys():
-            difference = abs(juror.beliefs.other_jurors_beliefs[fact].value - juror.beliefs.facts[fact].value)
-            if difference != discrepance_level.value:
-                continue
-            valid_facts_scores += 1
-            if fact not in valid_facts:
-                valid_facts[fact] = juror.beliefs.facts[fact]
-    return [valid_facts,valid_facts_scores/len(valid_facts)]
 
-def get_all_beliefs_to_debate(juror, discrepance_level):
-    """without considering majority or middle ground"""
-    discrepant_facts_scores = 0
-    discrepant_facts = {}
-    for fact in juror.beliefs.facts.keys():
-        for other_juror in juror.beliefs.other_jurors_beliefs.keys():
-            difference = abs(juror.beliefs.other_jurors_beliefs[other_juror][fact].value - juror.beliefs.facts[fact].value)
-            if not difference:
-                continue
-            discrepant_facts_scores += 1
-            if fact not in discrepant_facts:
-                discrepant_facts[fact] = juror.beliefs.facts[fact]
-    discrepant_facts_scores = 0 if len(discrepant_facts) == 0 else discrepant_facts_scores/len(discrepant_facts)
-    return [discrepant_facts,discrepant_facts_scores]
-    
 
-# def get_some_beliefs_to_debate(juror: Juror, discrepance_level):
-#     """without considering majority or middle ground"""
-#     valid_facts_scores = {}
-#     for fact in juror.beliefs.facts.keys():
-#         for juror in juror.beliefs.other_jurors_beliefs.keys():
-#             difference = abs(juror.beliefs.other_jurors_beliefs[fact].value - juror.beliefs.facts[fact])
-#             if difference != discrepance_level.value:
-#                 continue
-#             if fact in valid_facts_scores:
-#                 valid_facts_scores[fact] += 1
-#             else:
-#                 valid_facts_scores[fact] = 1
-    
+
 def get_facts_in_format(fact_dict):
     """
     Convert a dictionary of facts with relevance and veracity scores to a dictionary with Veracity enums.

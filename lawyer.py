@@ -59,7 +59,7 @@ def perceive_world_lawyer(lawyer : Lawyer):
     # Save data of case
     strategy = lawyer.context.ongoing_strategy
     strategy = StrategiesOwnWitnesses(strategy) if lawyer.context.witness_speaking.side else StrategiesOpposingWitnesses(strategy)
-    lawyer.context.sequence_of_events += f'''The lawyer felt the {LawyerDesires_Enum.Desire_to_win_the_case.name} and 
+    lawyer.context.sequence_of_events += f'''The lawyer is representing the deffense, so he wants the deffendant to be found not guilty. He felt the {LawyerDesires_Enum.Desire_to_win_the_case.name} and 
                                             had the {LawyerIntentions_Enum.Intention_to_apply_strategy.name}: {strategy.name}.\n'''
 
     

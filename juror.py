@@ -1,6 +1,6 @@
 # RULES OF JUROR
 import random
-from agent_methods import AgentInterface, adjust_others_beliefs_general, get_common_belief_different_from_yours, get_fact_disagreement, get_facts_in_format, get_most_relevant_fact, get_other_juror_belief_with_discrepancy, share_beliefs_general
+from agent_methods import AgentInterface, adjust_others_beliefs_general, get_common_belief_different_from_yours, get_fact_disagreement, get_facts_in_format, get_most_relevant_fact, get_other_juror_belief_with_discrepancy, share_beliefs_general, update_veracity
 from environment import SimulationContext
 from utils import Juror_desires, Message, Phase, Roles, Rule, Rule_mine, Trait_Level, Veracity
 
@@ -113,6 +113,17 @@ class Rule6(Rule_mine):
             for fact in juror.beliefs.other_jurors_beliefs[other_juror].keys():
                 discrepancy = abs(juror.beliefs.facts[fact].value - juror.beliefs.other_jurors_beliefs[other_juror][fact].value)
                 juror.beliefs.other_jurors_beliefs[other_juror][fact].discrepancy = discrepancy
+
+
+class Rule16(Rule_mine):
+    """ Rule to update the veracity of jurors about the case"""
+
+    def match(juror):
+        return juror.context.phase is Phase.juror_feedback
+    def do(juror):
+        update_veracity(juror, juror.context.witness_speaking, juror.context.current_fact)
+    
+
 class Rule2(Rule_mine):
     """ Rule to express beliefs in info pooling"""
 

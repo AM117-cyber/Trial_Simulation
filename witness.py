@@ -82,6 +82,10 @@ class GenerateEmpathyRule(Rule):
         self.context.witness_speaking.beliefs.emotions['sympathy'] += 2
         self.context.witness_speaking.beliefs.emotions['confidence'] += 2
         self.context.witness_speaking.beliefs.emotions['sadness'] += 1
+        # Save data of case
+        self.context.sequence_of_events += f'''The witness being questioned is witness number {self.context.witness_speaking.id}, 
+                                            on behalf of the lawyer, who due to the strategy applied by the lawyer increased his 
+                                            emotions, such as: empathy, sympathy, confidence and sadness.\n'''
 
 class EmpathyGenerationAltruisticMotiveRule(Rule):
     """ Rule to update the emotions of witness with the strategies Empathy generation and Altruistic motive"""
@@ -97,6 +101,10 @@ class EmpathyGenerationAltruisticMotiveRule(Rule):
         self.context.witness_speaking.beliefs.emotions['confidence'] += 2
         self.context.witness_speaking.beliefs.emotions['responsibility'] += 2
         self.context.witness_speaking.beliefs.emotions['hope'] += 2
+        # Save data of case
+        self.context.sequence_of_events += f'''The witness being questioned is witness number {self.context.witness_speaking.id}, 
+                                            on behalf of the lawyer, who due to the strategy applied by the lawyer increased his 
+                                            emotions, such as: empathy, credibility, confidence, responsibility and hope.\n'''
 
 class ChronologicalClarityRule(Rule):
     """ Rule to update the emotions of witness with the strategy Chronological clarity"""
@@ -109,6 +117,10 @@ class ChronologicalClarityRule(Rule):
     def do(self):
         self.context.witness_speaking.beliefs.emotions['credibility'] += 2
         self.context.witness_speaking.beliefs.emotions['calm'] += 2
+        # Save data of case
+        self.context.sequence_of_events += f'''The witness being questioned is witness number {self.context.witness_speaking.id}, 
+                                            on behalf of the lawyer, who due to the strategy applied by the lawyer increased his 
+                                            emotions, such as: credibility and calm.\n'''
 
 class ChronologicalClarityDetailedObservationRule1(Rule):
     """ Rule to update the emotions of witness with the strategies Chronological clarity and Detailed observation"""
@@ -121,6 +133,10 @@ class ChronologicalClarityDetailedObservationRule1(Rule):
     def do(self):
         self.context.witness_speaking.beliefs.emotions['credibility'] += 2
         self.context.witness_speaking.beliefs.emotions['calm'] += 2
+        # Save data of case
+        self.context.sequence_of_events += f'''The witness being questioned is witness number {self.context.witness_speaking.id}, 
+                                            on behalf of the lawyer, who due to the strategy applied by the lawyer increased his 
+                                            emotions, such as: credibility and calm.\n'''
 
 class ChronologicalClarityDetailedObservationRule2(Rule):
     """ Rule to update the emotions of witness with the strategies Chronological clarity and Detailed observation"""
@@ -133,6 +149,10 @@ class ChronologicalClarityDetailedObservationRule2(Rule):
                and  (self.context.witness_speaking.ineptitude == 'High' or self.context.witness_speaking.education == 'Low')
     def do(self):
         self.context.witness_speaking.beliefs.emotions['frustration'] += 2
+        # Save data of case
+        self.context.sequence_of_events += f'''The witness being questioned is witness number {self.context.witness_speaking.id}, 
+                                            on behalf of the lawyer, who due to the strategy applied by the lawyer increased his 
+                                            emotions, such as: frustration.\n'''
 
 class ReluctantParticipationRule(Rule):
     """ Rule to update the emotions of witness with the strategy Reluctant participation"""
@@ -145,6 +165,10 @@ class ReluctantParticipationRule(Rule):
     def do(self):
         self.context.witness_speaking.beliefs.emotions['responsibility'] += 2
         self.context.witness_speaking.beliefs.emotions['confidence'] -= 1
+        # Save data of case
+        self.context.sequence_of_events += f'''The witness being questioned is witness number {self.context.witness_speaking.id}, 
+                                            on behalf of the lawyer, who due to the strategy applied by the lawyer increased his 
+                                            emotions, such as: responsibility; and decreased his emotions, such as: confidence.\n'''
 
 class MemoryLapsesRule(Rule):
     """ Rule to update the emotions of witness with the strategy Memory lapses"""
@@ -160,6 +184,11 @@ class MemoryLapsesRule(Rule):
         self.context.witness_speaking.beliefs.emotions['shame'] += 2
         self.context.witness_speaking.beliefs.emotions['credibility'] -= 2
         self.context.witness_speaking.beliefs.emotions['confidence'] -= 2
+        # Save data of case
+        self.context.sequence_of_events += f'''The witness being questioned is witness number {self.context.witness_speaking.id}, 
+                                            against the lawyer, who due to the strategy applied by the lawyer increased his 
+                                            emotions, such as: confusion, frustration and shame; and decreased his emotions, such as: 
+                                            credibility and confidence.\n'''
 
 class BiasedPerspectiveRule1(Rule):
     """ Rule to update the emotions of witness with the strategy Biased perspective"""
@@ -171,6 +200,10 @@ class BiasedPerspectiveRule1(Rule):
         return self.context.phase is Phase.witness_testimony and strategy == StrategiesOpposingWitnesses.Biased_perspective 
     def do(self):
         self.context.witness_speaking.beliefs.emotions['credibility'] -= 2
+        # Save data of case
+        self.context.sequence_of_events += f'''The witness being questioned is witness number {self.context.witness_speaking.id}, 
+                                            against the lawyer, who due to the strategy applied by the lawyer decreased his emotions, 
+                                            such as: credibility.\n'''
 
 class BiasedPerspectiveRule2(Rule):
     """ Rule to update the emotions of witness with the strategy Biased perspective"""
@@ -185,6 +218,10 @@ class BiasedPerspectiveRule2(Rule):
         self.context.witness_speaking.beliefs.emotions['frustration'] += 2
         self.context.witness_speaking.beliefs.emotions['calm'] -= 2
         self.context.witness_speaking.beliefs.emotions['shame'] += 2
+        # Save data of case
+        self.context.sequence_of_events += f'''The witness being questioned is witness number {self.context.witness_speaking.id}, 
+                                            against the lawyer, who due to the strategy applied by the lawyer increased his 
+                                            emotions, such as: frustration and shame; and decreased his emotions, such as: calm.\n'''
 
 class MotivationalDoubtsRule(Rule):
     """ Rule to update the emotions of witness with the strategy Motivational doubts"""
@@ -198,6 +235,10 @@ class MotivationalDoubtsRule(Rule):
         self.context.witness_speaking.beliefs.emotions['shame'] += 2
         self.context.witness_speaking.beliefs.emotions['credibility'] -= 2
         self.context.witness_speaking.beliefs.emotions['confidence'] -= 2
+        # Save data of case
+        self.context.sequence_of_events += f'''The witness being questioned is witness number {self.context.witness_speaking.id}, 
+                                            against the lawyer, who due to the strategy applied by the lawyer increased his 
+                                            emotions, such as: shame; and decreased his emotions, such as: credibility and confidence.\n'''
 
 class ContradictionTrapRule(Rule):
     """ Rule to update the emotions of witness with the strategy Contradiction trap"""
@@ -213,6 +254,11 @@ class ContradictionTrapRule(Rule):
         self.context.witness_speaking.beliefs.emotions['anger'] += 2
         self.context.witness_speaking.beliefs.emotions['credibility'] -= 2
         self.context.witness_speaking.beliefs.emotions['confidence'] -= 2
+        # Save data of case
+        self.context.sequence_of_events += f'''The witness being questioned is witness number {self.context.witness_speaking.id}, 
+                                            against the lawyer, who due to the strategy applied by the lawyer increased his 
+                                            emotions, such as: anger, frustration and shame; and decreased his emotions, such as: 
+                                            credibility and confidence.\n'''
 
 class EmotionUnreliabilityRule(Rule):
     """ Rule to update the emotions of witness with the strategy Emotion unreliability"""
@@ -229,6 +275,11 @@ class EmotionUnreliabilityRule(Rule):
         self.context.witness_speaking.beliefs.emotions['calm'] -= 2
         self.context.witness_speaking.beliefs.emotions['credibility'] -= 2
         self.context.witness_speaking.beliefs.emotions['confidence'] -= 2
+        # Save data of case
+        self.context.sequence_of_events += f'''The witness being questioned is witness number {self.context.witness_speaking.id}, 
+                                            against the lawyer, who due to the strategy applied by the lawyer increased his 
+                                            emotions, such as: sadness, frustration and shame; and decreased his emotions, such as: 
+                                            credibility, confidence and calm.\n'''
 
 # Function to perceive the world and update the beliefs and intentions
 def perceive_world_witness(witness : Witness):

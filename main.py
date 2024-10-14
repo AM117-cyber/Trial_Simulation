@@ -1,4 +1,4 @@
-from juror import Juror, JurorBeliefs, Rule1, Rule2, Rule3, Rule5, Rule6, Rule7, Rule8, Rule9, Rule10, Rule11, Rule12, Rule13, Rule14, Rule15, execute_actions_juror, perceive_world_juror
+from juror import Juror, JurorBeliefs, Rule1, Rule2, Rule3, Rule5, Rule6, Rule7, Rule8, Rule9, Rule10, Rule11, Rule12, Rule13, Rule14, Rule15, Rule16, execute_actions_juror, perceive_world_juror
 from lawyer import Lawyer, perceive_world_lawyer
 from agent_methods import vote, update_pool
 from witness import Witness, perceive_world_witness, execute_actions_witness
@@ -20,7 +20,7 @@ def start_simulation(lawyer, testimonies,jury_pool,jury_amount, facts):
     # for element in top_results:
     #     print(element.verdict)
 
-def generate_jury_pool(json_file_path, case):
+def generate_jury_pool(json_file_path, case, assert_rules, generate_desires_rules):
     with open(json_file_path, 'r') as f:
         jurors_data = json.load(f)
     
@@ -30,6 +30,8 @@ def generate_jury_pool(json_file_path, case):
         juror = Juror(
             perceive_world_func=perceive_world_juror,
             execute_action_func=execute_actions_juror,
+            assert_rules=assert_rules,
+            generate_desires_rules=generate_desires_rules,
             vote_function=vote,
             id=juror_data['id'],
             openness=map_trait_level(juror_data['openness']),
@@ -38,15 +40,15 @@ def generate_jury_pool(json_file_path, case):
             agreeableness=map_trait_level(juror_data['agreeableness']),
             neuroticism=map_trait_level(juror_data['neuroticism']),
             locus_of_control=juror_data['locus_of_control'],
-            social_norms=juror_data['social_norms'],
-            value_emotional_exp=juror_data['value_emotional_exp'],
-            takes_risks=juror_data['takes_risks'],
-            takes_decisions_by_fear=juror_data['takes_decisions_by_fear'],
+            social_norms=map_trait_level(juror_data['social_norms']),
+            value_emotional_exp=map_trait_level(juror_data['value_emotional_exp']),
+            takes_risks=map_trait_level(juror_data['takes_risks']),
+            takes_decisions_by_fear=map_trait_level(juror_data['takes_decisions_by_fear']),
             bias=juror_data['bias'],
             age=juror_data['age'],
             gender=juror_data['gender'],
             race=juror_data['race'],
-            socioeconomic_status=juror_data['socioeconomic_status'],
+            socioeconomic_status=map_trait_level(juror_data['socioeconomic_status']),
             beliefs=JurorBeliefs(case)
         )
         jury_pool.append(juror)
@@ -75,9 +77,9 @@ if __name__ == '__main__':
             testimonies.append((wit, fact))
 
     lawyer = Lawyer(perceive_world_lawyer, None, witnesses)
-    assert_rules = [Rule1, Rule5, Rule6]
+    assert_rules = [Rule1, Rule5, Rule6, Rule16]
     generate_desires_rules = [Rule2, Rule3, Rule7, Rule8, Rule9, Rule10, Rule11, Rule12, Rule13, Rule14, Rule15]
-    # jury_pool = generate_jury_pool('data.json', case)
+    # jury_pool = generate_jury_pool('data.json', case, assert_rules, generate_desires_rules)
     # Creating 6 instances of the juror class
     jury1 = Juror(perceive_world_juror, execute_actions_juror, assert_rules, generate_desires_rules , vote, 1,map_trait_level("High"), map_trait_level("Low"), map_trait_level("High"), map_trait_level("Low"), map_trait_level("High"), "Internal", map_trait_level("High"), map_trait_level("High"), map_trait_level("High"), map_trait_level("Low"), "None", 30, "Male", "Asian", map_trait_level("Middle"),JurorBeliefs(case)) 
     jury1.role = Roles.holdout

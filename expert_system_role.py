@@ -13,10 +13,10 @@ class JurorExpSys(Fact):
     conscientiousness = Field(Trait_Level, default=None)
     neuroticism = Field(Trait_Level, default=None)
     locus_of_control = Field(str, default="")
-    value_emotional_exp = Field(str, default="")
-    takes_risks = Field(str, default="")
-    takes_decisions_by_fear = Field(str, default="")
-    socioeconomic_status = Field(str, default="")
+    value_emotional_exp = Field(Trait_Level, default="")
+    takes_risks = Field(Trait_Level, default="")
+    takes_decisions_by_fear = Field(Trait_Level, default="")
+    socioeconomic_status = Field(Trait_Level, default="")
 
 # Motor de Inferencia (Reglas)
 class JurorIdentificator(KnowledgeEngine):
@@ -26,36 +26,36 @@ class JurorIdentificator(KnowledgeEngine):
 
     @Rule(JurorExpSys(openness=Trait_Level.undefined, extraversion=Trait_Level.high, agreeableness=Trait_Level.undefined, 
                       conscientiousness=Trait_Level.high, neuroticism=Trait_Level.undefined, locus_of_control="Internal", 
-                      value_emotional_exp="Low", takes_risks="High", takes_decisions_by_fear="Low", 
-                      socioeconomic_status="High")) # rule1
+                      value_emotional_exp=Trait_Level.low, takes_risks=Trait_Level.high, takes_decisions_by_fear=Trait_Level.low, 
+                      socioeconomic_status=Trait_Level.high)) # rule1
     def is_leader(self):
         self.role = "Leader"
 
     @Rule(JurorExpSys(openness=Trait_Level.undefined, extraversion=Trait_Level.low, agreeableness=Trait_Level.high, 
                       conscientiousness=Trait_Level.undefined, neuroticism=Trait_Level.undefined, locus_of_control="External", 
-                      value_emotional_exp="Middle", takes_risks="Low", takes_decisions_by_fear="High", 
-                      socioeconomic_status="Middle")) # rule2
+                      value_emotional_exp=Trait_Level.undefined, takes_risks=Trait_Level.low, takes_decisions_by_fear=Trait_Level.high, 
+                      socioeconomic_status=Trait_Level.undefined)) # rule2
     def is_follower(self):
         self.role = "Follower"
     
     @Rule(JurorExpSys(openness=Trait_Level.high, extraversion=Trait_Level.undefined, agreeableness=Trait_Level.undefined, 
                       conscientiousness=Trait_Level.undefined, neuroticism=Trait_Level.undefined, locus_of_control="External", 
-                      value_emotional_exp="Middle", takes_risks="Middle", takes_decisions_by_fear="Middle", 
-                      socioeconomic_status="Middle")) # rule3
+                      value_emotional_exp=Trait_Level.undefined, takes_risks=Trait_Level.undefined, takes_decisions_by_fear=Trait_Level.undefined, 
+                      socioeconomic_status=Trait_Level.undefined)) # rule3
     def is_filler(self):
         self.role = "Filler"
 
     @Rule(JurorExpSys(openness=Trait_Level.high, extraversion=Trait_Level.high, agreeableness=Trait_Level.high, 
                       conscientiousness=Trait_Level.high, neuroticism=Trait_Level.undefined, locus_of_control="Internal", 
-                      value_emotional_exp="Low", takes_risks="Middle", takes_decisions_by_fear="Middle", 
-                      socioeconomic_status="High")) # rule4
+                      value_emotional_exp=Trait_Level.low, takes_risks=Trait_Level.undefined, takes_decisions_by_fear=Trait_Level.undefined, 
+                      socioeconomic_status=Trait_Level.high)) # rule4
     def is_negotiator(self):
         self.role = "Negotiator"
 
     @Rule(JurorExpSys(openness=Trait_Level.low, extraversion=Trait_Level.undefined, agreeableness=Trait_Level.undefined, 
                       conscientiousness=Trait_Level.undefined, neuroticism=Trait_Level.high, locus_of_control="Internal", 
-                      value_emotional_exp="Middle", takes_risks="High", takes_decisions_by_fear="Low", 
-                      socioeconomic_status="High")) # rule5
+                      value_emotional_exp=Trait_Level.undefined, takes_risks=Trait_Level.high, takes_decisions_by_fear=Trait_Level.low, 
+                      socioeconomic_status=Trait_Level.high)) # rule5
     def is_holdout(self):
         self.role = "Holdout"
 

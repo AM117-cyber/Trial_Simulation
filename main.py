@@ -1,4 +1,4 @@
-from juror import Juror, JurorBeliefs, Rule1, Rule16, Rule2, Rule3, Rule5, Rule6, Rule7, Rule8, Rule9, Rule10, Rule11, Rule12, Rule13, Rule14, Rule15, execute_actions_juror, perceive_world_juror
+from juror import Juror, JurorBeliefs, Rule1, Rule2, Rule3, Rule5, Rule6, Rule7, Rule8, Rule9, Rule10, Rule11, Rule12, Rule13, Rule14, Rule15, Rule16, execute_actions_juror, perceive_world_juror
 from lawyer import Lawyer, perceive_world_lawyer
 from agent_methods import vote, update_pool
 from witness import Witness, perceive_world_witness, execute_actions_witness
@@ -79,7 +79,7 @@ if __name__ == '__main__':
     lawyer = Lawyer(perceive_world_lawyer, None, witnesses)
     assert_rules = [Rule1, Rule5, Rule6, Rule16]
     generate_desires_rules = [Rule2, Rule3, Rule7, Rule8, Rule9, Rule10, Rule11, Rule12, Rule13, Rule14, Rule15]
-    # jury_pool = generate_jury_pool('data.json', case)
+    # jury_pool = generate_jury_pool('data.json', case, assert_rules, generate_desires_rules)
     # Creating 6 instances of the juror class
     jury1 = Juror(perceive_world_juror, execute_actions_juror, assert_rules, generate_desires_rules , vote, 1,map_trait_level("High"), map_trait_level("Low"), map_trait_level("High"), map_trait_level("Low"), map_trait_level("High"), "Internal", map_trait_level("High"), map_trait_level("High"), map_trait_level("High"), map_trait_level("Low"), "None", 30, "Male", "Asian", map_trait_level("Middle"),JurorBeliefs(case)) 
     jury1.role = Roles.holdout

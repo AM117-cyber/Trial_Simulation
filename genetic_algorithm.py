@@ -35,7 +35,8 @@ class GeneticAlgorithm:
         self.best_solutions = []
         self.sequences_of_events = []
         self.case = case
-        
+                self.variance = 100
+
         self.variance = 100
 
         # Asserts 
@@ -167,9 +168,13 @@ class GeneticAlgorithm:
         
         for _ in range(self.n_iterations):
         # while self.variance > 0.01 and self.n_iterations > 0:
+        
+        for _ in range(self.n_iterations):
+        # while self.variance > 0.01 and self.n_iterations > 0:
             ## Calculate fitness score
             self.sequences_of_events = []
             scores = self.get_fitness_scores()
+            # self.variance = np.var(np.array(scores))
             # self.variance = np.var(np.array(scores))
 
             # Append best score
@@ -202,6 +207,7 @@ class GeneticAlgorithm:
             # Set new population as population
             self.population = new_population
           # self.n_iterations -= 1
+            # self.n_iterations -= 1
         
         # When n_iterations are finished, fitness score
         self.sequences_of_events = []

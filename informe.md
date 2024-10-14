@@ -1,25 +1,25 @@
 
-### Introducción a los Juicios
+### 1. Introducción a los Juicios
 
 Los juicios son procesos legales fundamentales en los sistemas judiciales de todo el mundo. Su objetivo principal es resolver disputas entre partes, ya sean individuos, organizaciones o el Estado, de manera justa y equitativa. Los juicios buscan determinar la verdad de los hechos presentados y aplicar la ley de acuerdo con las pruebas y argumentos expuestos.
 
-### Objeto Social de los Juicios
+### 1.1 Descripción del proyecto
 
-El objeto social de los juicios es garantizar la justicia y el orden en la sociedad. A través de los juicios, se intenta proteger los derechos de los individuos y asegurar que las leyes se apliquen correctamente. Además, los juicios sirven como un mecanismo para resolver conflictos de manera pacífica y estructurada, evitando así la violencia y la anarquía.
+El funcionamiento del juicio que se simuló en el proyecto es basado en el sistema anglosajón, el cual tiene la siguiente estructura:
 
-### Funcionamiento de los Juicios
-
-El funcionamiento de los juicios varía según la jurisdicción y el tipo de caso, pero generalmente sigue una estructura similar:
-
-1. **Presentación del Caso**: Las partes involucradas presentan sus argumentos y pruebas ante un juez o un jurado.
-2. **Evaluación de Pruebas**: El juez o el jurado evalúa las pruebas presentadas, incluyendo testimonios, documentos y otros elementos relevantes.
-3. **Argumentos de las Partes**: Los abogados de ambas partes presentan sus argumentos, tratando de persuadir al juez o al jurado sobre la veracidad de sus afirmaciones.
-4. **Deliberación**: En el caso de un juicio con jurado, los miembros del jurado deliberan para llegar a un veredicto. En un juicio sin jurado, el juez toma la decisión.
+1. **Presentación del Caso**: Las partes involucradas presentan sus argumentos y pruebas ante un jurado.
+2. **Evaluación de Pruebas**: El jurado evalúa las pruebas presentadas, incluyendo testimonios, documentos y otros elementos relevantes.
+3. **Argumentos de las Partes**: Los abogados de ambas partes presentan sus argumentos, tratando de persuadir al jurado sobre la veracidad de sus afirmaciones. En el caso de este proyecto, se relajó el problema a un solo abogado, pues el interés principal del proyecto es brindarle a un abogado qué estrategias debe aplicar para ganar un caso y qué tipos de jurados son más propicios para obtener el mismo resultado. 
+4. **Deliberación**: Los miembros del jurado deliberan para llegar a un veredicto. 
 5. **Veredicto y Sentencia**: Se emite un veredicto basado en las pruebas y argumentos presentados. Si se encuentra culpable a una de las partes, se dicta una sentencia que puede incluir multas, penas de prisión u otras sanciones.
 
-Una parte fundamental de estos procesos son los miembros del jurado; ciudadanos convocados para analizar objetivamente los hechos presentados en un juicio y luego debatir las conclusiones alcanzadas. No todos los juicios tienen a un jurado decidiendo el veredicto final, sin embargo, esta práctica es muy frecuente debido a que se considera más justo que dejar la decisión únicamente en manos de un individuo (juez). 
+Primeramente se prepararon los datos con los cuales se trabajó, como un conjunto de personas de las cuales se iba seleccionando el jurado, el abogado referente en la simulación, los testigos presentes tanto por parte del abogado como por la parte contraria, el conjunto de hechos que tuvieron lugar en el caso, así como los testimonios, que no son más que la combinación de un testigo con un hecho. Un testigo puede testificar sobre varios hechos. Cada jurado tiene asociado un rol que identifica su personalidad y cómo actuará en el juicio y en las decisiones pertinentes. El rol de cada jurado es hallado a partir de un Sistema Experto que trabaja a partir de las características del jurado.
 
-En el transcurso de un juicio hay muchos elementos que pueden influenciar la opinión del jurado con respecto a los aspectos discutidos. Estos pueden estar relacionados con la personalidad de cada jurado y sus vivencias personales, por lo que con el surgimiento de las redes sociales y los científicos de datos no es de extrañar que varias compañías oferten entre sus servicios la creación de perfiles de personas con el objetivo de utilizarlos en un juicio. Con esta información antes del comienzo de la selección del jurado, los abogados pueden determinar qué estrategias resultarán más eficaces para los distintos miembros del pre-jurado y seleccionar los que puedan contribuir a llegar al veredicto que se persigue. Muchos abogados utilizan su experiencia ejerciendo para imaginar cómo se comportarán durante un juicio dados sus perfiles; sin embargo, mediante una simulación del juicio se puede llegar a resultados que tomen en cuenta más factores que los que un solo ser humano pueda considerar en un escenario reproducido en su mente. Es por esta razón que este proyecto busca hacer una simulación de los eventos de un jucio que afectan al jurado, con una simplificación de las etapas del juicio que fue necesario hacer para que el proyecto se terminara en el tiempo con el que se contaba.
+Para decidir los mejores resultados de la simulación se utilizó el algoritmo genético. A partir de una población inicial al azar del conjunto personas para escoger como miembro del jurado y las estrategias a aplicar a cada testimonio, se realiza el algoritmo genético. La función *fitness* para evaluar cada individuo en dicho algoritmo es la función que realiza la simulación del juicio (simulate_trial).
+
+Para realizar la simulación del juicio, se establecieron las fases dichas anteriormente de una manera más sencilla para el trabajo de la simulación, tal que se ajustaron a una fase de interrogación a los testigos y aplicación de estrategias por parte del abogado, una fase de deliberación para debatir las ideas que presentan cada miembro del jurado y una fase de votación para realizar un veredicto del caso.
+
+Para establecer un resumen del caso, se utilizó la Inteligencia Artificial a partir del trabajo con un LLM.
 
 ### Descripción de un juicio en la simulación
  En la simulación se asume que se cuenta con perfiles con cierto grado de correctitud para cada miembro del jurado. Partimos de un conjunto de personas de las cuales se debe seleccionar al jurado; una vez hecho esto tienen lugar la examinación de testigos y la deliberación del jurado.

@@ -8,7 +8,7 @@ from environment import SimulationContext
 from test import tester
 import json
 
-def start_simulation(lawyer, testimonies,jury_pool,jury_amount, facts):
+def start_simulation(lawyer, testimonies,jury_pool,jury_amount):
     update_pool(jury_pool) # actualiza la relevancia de los hechos por cada jurado y determina su rol
     # top_results = genetic_algorithm(n_strategies=len(lawyer.strategies[0]), n_jurors=jury_amount, n_people=len(jury_pool), 
     #                                 n_testimonies=len(facts))
@@ -95,5 +95,5 @@ if __name__ == '__main__':
     jury6.role = Roles.follower
     jury_pool= [jury1,jury2,jury3,jury4,jury5,jury6]
 
-    start_simulation(lawyer, testimonies, jury_pool, 4, case)
+    start_simulation(lawyer, testimonies, jury_pool, 4)
     tester(jury_pool, testimonies, lawyer, 4)

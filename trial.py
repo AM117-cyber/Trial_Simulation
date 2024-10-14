@@ -34,6 +34,6 @@ def simulate_trial(jurors_strategies, n_jurors, testimonies, jury_pool, lawyer):
     jury_pool_copy = copy.deepcopy(jury_pool)
     jurors = [jury_pool_copy[j-1] for j in jurors]
     phase_witness_interrogation(testimonies, strategies, lawyer, jurors)
-    not_guilty, guilty, time = simulate_deliberation(jurors) 
+    not_guilty, guilty, time, sequence_of_events = simulate_deliberation(jurors) 
 
-    return not_guilty, time
+    return not_guilty, time, sequence_of_events

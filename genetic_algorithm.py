@@ -32,6 +32,7 @@ class GeneticAlgorithm:
         self.best_fitness_evolution = []
         self.most_popular_alleles = [[0, None]]*n_people
         self.best_solutions = []
+        self.sequences_of_events = []
 
         # Asserts 
         # Check that fitness function is a function
@@ -42,7 +43,13 @@ class GeneticAlgorithm:
     
     ## Method for evaluation
     def get_fitness_scores(self):
-        scores = [self.fitness_func(ind, self.n_jurors, self.testimonies, self.jury_pool, self.lawyer)[0] for ind in self.population]
+        scores = []
+        for ind in self.population:
+            score, _, text = self.fitness_func(ind, self.n_jurors, self.testimonies, self.jury_pool, self.lawyer)
+            scores.append(score)
+            self.sequences_of_events.append(text)
+
+        # scores = [self.fitness_func(ind, self.n_jurors, self.testimonies, self.jury_pool, self.lawyer)[0] for ind in self.population]
         return np.array(scores)
     
     def reset_popular_alleles(self):
@@ -74,7 +81,9 @@ class GeneticAlgorithm:
         best_score_ind = scores[-1][1]
         best_solution = self.population[best_score_ind]
 
-        self.best_solutions.append((best_solution, best_score))
+        text = self.sequences_of_events[best_score_ind]
+
+        self.best_solutions.append((best_solution, best_score, text))
         return 'Ok'
     
     ## Selection of individuals by ranking
@@ -154,6 +163,7 @@ class GeneticAlgorithm:
     
         for i in range(self.n_iterations):
             ## Calculate fitness score
+            self.sequences_of_events = []
             scores = self.get_fitness_scores()
 
             # Append best score
@@ -187,6 +197,7 @@ class GeneticAlgorithm:
             self.population = new_population
         
         # When n_iterations are finished, fitness score
+        self.sequences_of_events = []
         scores = self.get_fitness_scores()
 
         # Append best score

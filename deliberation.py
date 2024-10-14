@@ -74,6 +74,7 @@ def simulate_deliberation(jury):
     context.sequence_of_events += "Votes for guilty: " + str(guilty) + ".\n"
     print(f"Votes for not guilty: {not_guilty}")
     print(f"Votes for guilty: {guilty}")
+    sequence_of_events = context.sequence_of_events
     # tsg = Trial_summary_generator()
     # write_to_file("Case 1", tsg.generate_summary(context.sequence_of_events))
     context.message = []
@@ -86,7 +87,7 @@ def simulate_deliberation(jury):
     context.sequence_of_events = ''
     context.witness_speaking = None
     context.current_fact = None
-    return (not_guilty,guilty, time) 
+    return (not_guilty,guilty, time, sequence_of_events) 
 
 
 # fact1 = Fact(Fact_Types.oportunity, "fact1")

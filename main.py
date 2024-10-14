@@ -16,9 +16,9 @@ def start_simulation(lawyer, testimonies,jury_pool,jury_amount, facts):
     context.set_sequence_of_events('')
     top_results = genetic_algorithm(lawyer=lawyer, n_jurors=jury_amount, jury_pool=jury_pool, testimonies=testimonies)
     print("It's over")
-    print(top_results)
-    # for element in top_results:
-    #     print(element.verdict)
+    # print(top_results)
+    for element in top_results:
+        print(element)
 
 def generate_jury_pool(json_file_path, case, assert_rules, generate_desires_rules):
     with open(json_file_path, 'r') as f:

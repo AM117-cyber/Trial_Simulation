@@ -31,6 +31,7 @@ class GeneticAlgorithm:
         self.testimonies = testimonies
         self.best_fitness_evolution = []
         self.most_popular_alleles = [[0, None]]*n_people
+        self.best_solutions = []
 
         # Asserts 
         # Check that fitness function is a function
@@ -64,9 +65,16 @@ class GeneticAlgorithm:
         return elem
     
     # Method to save the best score in each iteration
-    def __append_best_score(self, scores): 
+    def __append_best_score(self, scores):
         best_score = np.max(scores)
         self.best_fitness_evolution.append(best_score)
+
+        scores = [(score, pos) for pos, score in enumerate(scores)]
+        scores.sort()
+        best_score_ind = scores[-1][1]
+        best_solution = self.population[best_score_ind]
+
+        self.best_solutions.append((best_solution, best_score))
         return 'Ok'
     
     ## Selection of individuals by ranking
@@ -184,14 +192,7 @@ class GeneticAlgorithm:
         # Append best score
         _ = self.__append_best_score(scores)
 
-        # Get the result where the result is the best
-        scores = [(score, pos) for pos, score in enumerate(scores)]
-        scores.sort()
-        best_score_ind = scores[-1][1]
-        
-        best_solution = self.population[best_score_ind]
-
-        return (best_solution, self.best_fitness_evolution[-1])
+        return self.best_solutions
 
     def view_fitness_evolution(self):
         plt.plot(

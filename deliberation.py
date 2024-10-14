@@ -70,8 +70,11 @@ def simulate_deliberation(jury):
     guilty = 0
     for juror in jury:
         # desire to hide my opinion
-        vote = juror.vote()
-
+        
+        if juror.voted:
+            vote = juror.voted
+        else:
+            vote = juror.vote()
         if vote is Vote.not_guilty:
             not_guilty +=1
         else:

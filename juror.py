@@ -2,7 +2,7 @@
 import random
 from agent_methods import AgentInterface, adjust_others_beliefs_general, get_common_belief_different_from_yours, get_esteem_for_someone, get_fact_disagreement, get_facts_in_format, get_most_relevant_fact, get_other_juror_belief_with_discrepancy, share_beliefs_general, update_veracity
 from environment import SimulationContext
-from utils import Juror_desires, Message, Phase, Roles, Rule, Rule_mine, Trait_Level, Veracity
+from utils import Juror_desires, Message, Phase, Roles, Rule, Rule_mine, Trait_Level, Veracity, Vote
 
 class JurorBeliefs():
     def __init__(self, facts):
@@ -46,6 +46,7 @@ class Juror(AgentInterface):
         self.most_relevant_fact = None
         self.juror_to_interact_with = None
         self.vote_function = vote_function
+        self.voted = None
 
     def confidence_level(self, facts):
         return sum(abs(level.veracity) for level in facts.values())
@@ -102,6 +103,11 @@ class Rule5(Rule_mine):
             else:
                 my_opinions[fact].veracity += debated_beliefs_similarity
             juror.update_facts_level(my_opinions[fact].veracity, fact)   
+            if my_opinions[fact].veracity > 100:
+                juror.voted = Vote.guilty
+            elif my_opinions[fact].veracity < -100:
+                juror.voted = Vote.not_guilty
+
 
 class Rule6(Rule_mine):
     """ Rule to update discrepancies once the opinions of others have made me change mine"""
@@ -272,12 +278,22 @@ class Rule15(Rule_mine):
         juror.desires[Juror_desires.Convince_others_of_my_beliefs] = 15 + juror.beliefs.confidence_on_most_relevant_fact
 
 def perceive_world_juror(juror : Juror):
-    for rule in juror.assert_rules:
-        if rule.match(juror):
-            rule.do(juror)
-    for rule in juror.generate_desires_rules:
-        if rule.match(juror):
-            rule.do(juror)
+    rules_applied = []
+    change = 1
+    while change:
+        change = 0
+        for rule in juror.assert_rules:
+            if rule.match(juror):
+                if not rule in rules_applied:
+                    rules_applied.append(rule)
+                    change = 1
+                rule.do(juror)
+        for rule in juror.generate_desires_rules:
+            if rule.match(juror):
+                if not rule in rules_applied:
+                    rules_applied.append(rule)
+                    change = 1
+                rule.do(juror)
     return juror.execute_action_func(juror, filter_desires(juror.desires))
 
 def filter_desires(desires):

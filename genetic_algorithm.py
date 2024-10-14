@@ -35,7 +35,6 @@ class GeneticAlgorithm:
         self.best_solutions = []
         self.sequences_of_events = []
         self.case = case
-                self.variance = 100
 
         self.variance = 100
 
@@ -165,9 +164,6 @@ class GeneticAlgorithm:
         return individual
 
     def optimize(self):
-        
-        for _ in range(self.n_iterations):
-        # while self.variance > 0.01 and self.n_iterations > 0:
         
         for _ in range(self.n_iterations):
         # while self.variance > 0.01 and self.n_iterations > 0:

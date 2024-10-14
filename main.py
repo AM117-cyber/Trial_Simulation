@@ -1,4 +1,4 @@
-from juror import Juror, JurorBeliefs, Rule1, Rule2, Rule3, Rule5, Rule6, Rule7, Rule8, Rule9, Rule10, Rule11, Rule12, Rule13, Rule14, Rule15, Rule16, execute_actions_juror, perceive_world_juror
+from juror import Juror, JurorBeliefs, Rule1, Rule2, Rule3, Rule4, Rule5, Rule6, Rule7, Rule8, Rule9, Rule10, Rule11, Rule12, Rule13, Rule14, Rule15, execute_actions_juror, perceive_world_juror
 from lawyer import Lawyer, perceive_world_lawyer
 from agent_methods import vote, update_pool
 from witness import Witness, perceive_world_witness, execute_actions_witness
@@ -77,7 +77,7 @@ if __name__ == '__main__':
             testimonies.append((wit, fact))
 
     lawyer = Lawyer(perceive_world_lawyer, None, witnesses)
-    assert_rules = [Rule1, Rule5, Rule6, Rule16]
+    assert_rules = [Rule1, Rule5, Rule6, Rule4]
     generate_desires_rules = [Rule2, Rule3, Rule7, Rule8, Rule9, Rule10, Rule11, Rule12, Rule13, Rule14, Rule15]
     # jury_pool = generate_jury_pool('data.json', case, assert_rules, generate_desires_rules)
     # Creating 6 instances of the juror class

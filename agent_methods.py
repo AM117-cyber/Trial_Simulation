@@ -216,8 +216,9 @@ def get_fact_disagreement(juror,fact):
     disagreeing_jurors = 0
     fact_opinion_level = juror.beliefs.facts[fact].name
     for other_juror in juror.beliefs.other_jurors_beliefs.keys():
-        if juror.beliefs.other_jurors_beliefs[other_juror][fact].name != fact_opinion_level:
-            disagreeing_jurors +=1
+        if fact in juror.beliefs.other_jurors_beliefs[other_juror]:
+            if juror.beliefs.other_jurors_beliefs[other_juror][fact].name != fact_opinion_level:
+                disagreeing_jurors +=1
     return disagreeing_jurors/len(juror.beliefs.other_jurors_beliefs.keys())
 
 

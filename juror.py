@@ -1,6 +1,6 @@
 # RULES OF JUROR
 import random
-from agent_methods import AgentInterface, adjust_others_beliefs_general, get_common_belief_different_from_yours, get_esteem_for_someone, get_fact_disagreement, get_facts_in_format, get_most_relevant_fact, get_other_juror_belief_with_discrepancy, share_beliefs_general
+from agent_methods import AgentInterface, adjust_others_beliefs_general, get_common_belief_different_from_yours, get_fact_disagreement, get_facts_in_format, get_most_relevant_fact, get_other_juror_belief_with_discrepancy, share_beliefs_general
 from environment import SimulationContext
 from utils import Juror_desires, Message, Phase, Roles, Rule, Rule_mine, Trait_Level, Veracity
 
@@ -95,6 +95,8 @@ class Rule5(Rule_mine):
         debated_beliefs_similarity += juror.beliefs.esteem_for_others[speaker]
         my_opinions = juror.beliefs.facts_with_value
         for fact in message.beliefs_debated.keys():
+            if juror.beliefs.facts[fact].name is Veracity.UNCERTAIN.name and message.beliefs_debated[fact].name is Veracity.UNCERTAIN.name:
+                continue
             if juror.beliefs.facts[fact].value > message.beliefs_debated[fact].value:
                 my_opinions[fact].veracity -= debated_beliefs_similarity
             else:
@@ -389,6 +391,8 @@ def get_some_beliefs_to_debate(juror: Juror, discrepance_level):
             valid_facts_scores += 1
             if fact not in valid_facts:
                 valid_facts[fact] = juror.beliefs.facts[fact]
+    if not valid_facts:
+        return [valid_facts,0]
     return [valid_facts,valid_facts_scores/len(valid_facts)]
 
 def get_all_beliefs_to_debate(juror, discrepance_level):

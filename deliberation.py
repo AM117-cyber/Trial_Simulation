@@ -1,3 +1,4 @@
+import random
 from LLM_use import Trial_summary_generator
 from agent_methods import order_for_info_pooling, set_foreperson
 from utils import Debating_points, Fact, Fact_Info, Fact_Types, Info_pooling_data, Message, Phase, Roles, Testimony_Impressions, Vote
@@ -33,22 +34,29 @@ def simulate_deliberation(jury):
     beliefs_to_debate = context.message[0].beliefs_debated
     while current_debater and time <= len(jury) *20: #si llega a ese límite ha dado tiempo a que hablen todos los del jurado 20 veces. time representa la cantidad de intervenciones
         time+=1
-        
+        tmp = []
         max_value = 28 # debating threshold
+        points_to_debate = ""
+        for fact in beliefs_to_debate.keys():
+            points_to_debate+= fact.text + " - " + beliefs_to_debate[fact].name + ", "
+        print(f"Juror {current_debater.id} is debating this points: {points_to_debate}")
         for juror in jury:
-            points_to_debate = ""
-            for fact in beliefs_to_debate.keys():
-                points_to_debate+= fact.text + " - " + beliefs_to_debate[fact].name + ", "
-            print(f"Juror {current_debater.id} is debating this points: {points_to_debate}")
+
             if juror.id != current_debater.id:
                 answer = juror.perceive_world()
-                if answer:
-                    print("nn")
-                if answer and answer[1] > max_value:
-                    context.set_message([answer[0]])
-                    max_value = answer[1]
-        if max_value <= 28: # no ha cambiado, entonces no hay persona que continúe el debate
+                if answer[1] > max_value:
+                    tmp.append(answer)
+                
+        if not len(tmp): # no ha cambiado, entonces no hay persona que continúe el debate
             break
+        sorted_data = sorted(tmp, key=lambda x: x[1])
+        limit = 0
+        # while limit <= len(sorted_data) - 2:
+        #     if (sorted_data[limit+1][1] + 20) < sorted_data[0][1]:
+        #         break
+        #     limit+=1
+        choice = random.randint(0,len(sorted_data) - 1)
+        context.set_message([sorted_data[choice][0]])
         current_debater = context.message[0].sender_juror
         beliefs_to_debate = context.message[0].beliefs_debated
     not_guilty = 0

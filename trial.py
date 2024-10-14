@@ -8,9 +8,9 @@ import copy
 def phase_witness_interrogation(testimonies, strategies, lawyer : Lawyer, jurors):
     context = SimulationContext()
     context.set_jury_size(len(jurors))
-    context.sequence_of_events += '''Following this, the phase of questioning witnesses for and against the lawyer will be conducted.
+    context.sequence_of_events += '''Following this, the phase of questioning witnesses for and against the deffendant lawyer will be conducted.
                                      Testimony is the combination of a witness and a fact itself. I am going to give you a series of 
-                                     testimonies, for each of which I will provide the strategy that the lawyer applies and the 
+                                     testimonies, for each of which I will provide the strategy that the deffendant lawyer applies and the 
                                      influence they provoke in the witness.\n'''
     for testimony, strategy in zip(testimonies, strategies):
         context.sequence_of_events += f'The current testimony is about the following fact: {testimony[1].text}.\n'

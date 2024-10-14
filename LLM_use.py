@@ -7,7 +7,7 @@ from google.generativeai.types import HarmCategory, HarmBlockThreshold
 
 MAX_RETRIES = 5  # Maximum number of attempts for the Gemini API
 
-summary_instructions = """Para generar el resumen de un juicio debes redactar un texto que el abogado pueda consultar con el objetivo de ver los abogados que más interactuaron y los eventos más significativos en el juicio, es decir, aquellos que contribuyeron más al veredicto final."""
+summary_instructions = """Para generar el resumen de un juicio debes redactar un resumen para ver los miembros del jurado que más interactuaron y los eventos más significativos en el juicio, así como la deliberacion en la fase de belief confrontation, es decir, aquellos que contribuyeron más al veredicto final. Es muy importante escribir un resumen de la interaccion de los jurados en la deliberacion a modo de historia que el lector pueda entender. Que un jurado tenga una creencia acerca de un hecho alta, es decir, que cree que el hecho es verídico, quiere decir que cree que el acusado es culpable. El abogado del acusado quiere que se le encuentre inocente, por lo que sus esfuerzos siempre van orientados a persuadir al jurado a emitir un voto de no culpable. Si la opinion acerca de un hecho es menor que -15 es porque cree que es falso, si es mayor que 15 se cree que es verdadero. En otro caso el jurrado no está seguro de lo acontecido."""
 
 
 class Trial_summary_generator:

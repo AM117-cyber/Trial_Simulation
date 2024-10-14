@@ -7,23 +7,29 @@ from environment import SimulationContext
 def simulate_deliberation(jury):
     context = SimulationContext()
     context.set_phase(Phase.info_pooling)
+    context.sequence_of_events += "Deliberation has begun in phase info pooling.\n"
     foreperson = set_foreperson(jury)
+    context.sequence_of_events += f"Foreperson is : juror {foreperson.id}\n"
     print(f"Foreperson is : juror {foreperson.id}")
     jury = order_for_info_pooling(jury)
     for juror in jury:
         context.set_juror_to_speak(juror.id)
+        context.sequence_of_events += f"Age: {juror.age}, Confidence Level: {juror.confidence_level(juror.beliefs.facts_with_value)}, Extraversion: {juror.extraversion}, Openness: {juror.openness}\n"
         print(f"Age: {juror.age}, Confidence Level: {juror.confidence_level(juror.beliefs.facts_with_value)}, Extraversion: {juror.extraversion}, Openness: {juror.openness}")       
         juror.perceive_world()
     # all jurors shared their beliefs
     context.set_juror_to_speak(-1)
+    context.sequence_of_events += "Creencias compartidas en info pooling:\n"
     print("Creencias compartidas en info pooling:")
     for messsage in context.message:
         beliefs = ""
         for fact, value in messsage.beliefs_debated.items():
             beliefs += fact.text + " " + value.name
+        context.sequence_of_events +=f"{messsage.sender_juror.id}: {beliefs}\n"
         print(f"{messsage.sender_juror.id}: {beliefs}")
     for juror in jury:
         juror.perceive_world()
+    context.sequence_of_events += "Phase belief confrontation has begun.\n"
     print(Phase.belief_confrontation)
     context.set_phase(Phase.belief_confrontation)
     context.set_message([])
@@ -39,6 +45,7 @@ def simulate_deliberation(jury):
         points_to_debate = ""
         for fact in beliefs_to_debate.keys():
             points_to_debate+= fact.text + " - " + beliefs_to_debate[fact].name + ", "
+        context.sequence_of_events += f"Juror {current_debater.id} is debating this points: {points_to_debate}\n"
         print(f"Juror {current_debater.id} is debating this points: {points_to_debate}")
         for juror in jury:
 

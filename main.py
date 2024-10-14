@@ -1,3 +1,5 @@
+from LLM_use import Trial_summary_generator
+from deliberation import write_to_file
 from juror import Juror, JurorBeliefs, Rule1, Rule2, Rule3, Rule4, Rule5, Rule6, Rule7, Rule8, Rule9, Rule10, Rule11, Rule12, Rule13, Rule14, Rule15, execute_actions_juror, perceive_world_juror
 from lawyer import Lawyer, perceive_world_lawyer
 from agent_methods import vote, update_pool
@@ -17,8 +19,13 @@ def start_simulation(lawyer, testimonies,jury_pool,jury_amount,case):
     top_results = genetic_algorithm(lawyer=lawyer, n_jurors=jury_amount, jury_pool=jury_pool, testimonies=testimonies, case=case)
     print("It's over")
     # print(top_results)
-    for solution, score, _ in top_results:
-        print(f'One of best solutions is: {solution} with amount of no guilty = {score}')
+    i = 1
+    # for solution, score, text in top_results:
+    #     case_name = "Case " + str(i)
+    #     i+= 1
+    #     tsg = Trial_summary_generator()
+    #     write_to_file(case_name, tsg.generate_summary(text))
+        
 
 def generate_jury_pool(json_file_path, case, assert_rules, generate_desires_rules):
     with open(json_file_path, 'r') as f:
@@ -96,4 +103,4 @@ if __name__ == '__main__':
     jury_pool= [jury1,jury2,jury3,jury4,jury5,jury6]
 
     start_simulation(lawyer, testimonies, jury_pool, 4,case)
-    tester(jury_pool, testimonies, lawyer, 4, case)
+    # tester(jury_pool, testimonies, lawyer, 4, case)

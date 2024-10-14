@@ -96,4 +96,3 @@ if __name__ == '__main__':
     jury_pool= [jury1,jury2,jury3,jury4,jury5,jury6]
 
     start_simulation(lawyer, testimonies, jury_pool, 4,case)
-    tester(jury_pool, testimonies, lawyer, 4, case)

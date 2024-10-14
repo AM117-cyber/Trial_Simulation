@@ -326,8 +326,11 @@ def execute_actions_juror(juror: Juror, desire: Juror_desires):
         strength += result[1]
     elif desire is Juror_desires.Start_debate:
         answer = juror.beliefs.facts
+    if not answer:
+        print("Not answer")
     for des in juror.desires:
         juror.desires[des] = 0
+    
     return[Message(juror,answer), strength]
     
 # def execute_actions_general(juror:Juror, strength):

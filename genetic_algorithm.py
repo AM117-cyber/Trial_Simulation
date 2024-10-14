@@ -16,7 +16,8 @@ class GeneticAlgorithm:
         n_jurors = 12, 
         population = None, # poblacion
         n_selected_individuals = 5, # numero de individuos a seleccionar
-        fitness_func = None):   
+        fitness_func = None,
+        case = None):   
 
         self.n_genes = n_genes 
         self.fitness_func = fitness_func
@@ -33,6 +34,7 @@ class GeneticAlgorithm:
         self.most_popular_alleles = [[0, None]]*n_people
         self.best_solutions = []
         self.sequences_of_events = []
+        self.case = case
 
         # Asserts 
         # Check that fitness function is a function
@@ -45,7 +47,7 @@ class GeneticAlgorithm:
     def get_fitness_scores(self):
         scores = []
         for ind in self.population:
-            score, _, text = self.fitness_func(ind, self.n_jurors, self.testimonies, self.jury_pool, self.lawyer)
+            score, _, text = self.fitness_func(ind, self.n_jurors, self.testimonies, self.jury_pool, self.lawyer, self.case)
             scores.append(score)
             self.sequences_of_events.append(text)
 
@@ -212,7 +214,7 @@ class GeneticAlgorithm:
         )
         plt.show()
 
-def genetic_algorithm(lawyer, n_jurors, jury_pool, testimonies):
+def genetic_algorithm(lawyer, n_jurors, jury_pool, testimonies, case):
     # Poblacion random para la primera generacion del algoritmo genetico
     n_people = len(jury_pool)
     n_strategies = len(lawyer.strategies[0])
@@ -231,7 +233,8 @@ def genetic_algorithm(lawyer, n_jurors, jury_pool, testimonies):
         lawyer = lawyer,
         jury_pool = jury_pool,
         testimonies = testimonies,
-        fitness_func= simulate_trial
+        fitness_func= simulate_trial,
+        case=case
     )
 
     # ga.view_fitness_evolution()

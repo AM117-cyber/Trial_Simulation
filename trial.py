@@ -1,4 +1,5 @@
 from environment import SimulationContext
+from juror import JurorBeliefs
 from utils import Phase
 from deliberation import simulate_deliberation
 from lawyer import Lawyer
@@ -11,7 +12,7 @@ def phase_witness_interrogation(testimonies, strategies, lawyer : Lawyer, jurors
                                      testimonies, for each of which I will provide the strategy that the lawyer applies and the 
                                      influence they provoke in the witness.\n'''
     for testimony, strategy in zip(testimonies, strategies):
-        context.sequence_of_events += f'The current testimony is about the following fact: {testimony[1][0].text}.\n'
+        context.sequence_of_events += f'The current testimony is about the following fact: {testimony[1].text}.\n'
         context.set_phase(Phase.aplication_strategies)
         context.set_ongoing_strategy(strategy) 
         witness = testimony[0]
@@ -27,12 +28,14 @@ def phase_witness_interrogation(testimonies, strategies, lawyer : Lawyer, jurors
         for juror in jurors:
             juror.perceive_world()
 
-def simulate_trial(jurors_strategies, n_jurors, testimonies, jury_pool, lawyer):
+def simulate_trial(jurors_strategies, n_jurors, testimonies, jury_pool, lawyer,case):
     jurors = [j for j in jurors_strategies[:n_jurors]]
     strategies = [s for s in jurors_strategies[n_jurors:]]
     print(f'Jurors {jurors}')
     jury_pool_copy = copy.deepcopy(jury_pool)
     jurors = [jury_pool_copy[j-1] for j in jurors]
+    for juror in jurors:
+        juror.beliefs = JurorBeliefs(case)
     phase_witness_interrogation(testimonies, strategies, lawyer, jurors)
     not_guilty, guilty, time, sequence_of_events = simulate_deliberation(jurors) 
 

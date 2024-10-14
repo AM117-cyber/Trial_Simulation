@@ -121,7 +121,7 @@ def two_groups_test(groups):
             print('No hay diferencias significativas entre los grupos')
             return False
 
-def tester(jury_pool, testimonies, lawyer, jury_size):
+def tester(jury_pool, testimonies, lawyer, jury_size, case):
     """Method for run the tests of simulation"""
 
     # Compare the deliberation time between jurors by jury size
@@ -133,7 +133,7 @@ def tester(jury_pool, testimonies, lawyer, jury_size):
             n_strategies = len(lawyer.strategies[0])
             n_testimonies = len(testimonies)
             jurors_strategies = tuple(random.sample(range(1, n_people+1), jury_amount)) + tuple(np.random.randint(1, n_strategies+1) for _ in range(n_testimonies))
-            _, time = simulate_trial(jurors_strategies, jury_amount, testimonies, jury_pool, lawyer)
+            _, time = simulate_trial(jurors_strategies, jury_amount, testimonies, jury_pool, lawyer, case)
             group.append(time)
         groups.append(group)
     anova_test = multiple_groups_test(groups)

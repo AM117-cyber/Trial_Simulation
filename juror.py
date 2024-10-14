@@ -327,7 +327,7 @@ def execute_actions_juror(juror: Juror, desire: Juror_desires):
     elif desire is Juror_desires.Start_debate:
         answer = juror.beliefs.facts
     if not answer:
-        print("Not answer")
+        strength = 0
     for des in juror.desires:
         juror.desires[des] = 0
     

@@ -8,13 +8,13 @@ from environment import SimulationContext
 from test import tester
 import json
 
-def start_simulation(lawyer, testimonies,jury_pool,jury_amount):
+def start_simulation(lawyer, testimonies,jury_pool,jury_amount,case):
     update_pool(jury_pool) # actualiza la relevancia de los hechos por cada jurado y determina su rol
     # top_results = genetic_algorithm(n_strategies=len(lawyer.strategies[0]), n_jurors=jury_amount, n_people=len(jury_pool), 
     #                                 n_testimonies=len(facts))
     context = SimulationContext()
     context.set_sequence_of_events('')
-    top_results = genetic_algorithm(lawyer=lawyer, n_jurors=jury_amount, jury_pool=jury_pool, testimonies=testimonies)
+    top_results = genetic_algorithm(lawyer=lawyer, n_jurors=jury_amount, jury_pool=jury_pool, testimonies=testimonies, case=case)
     print("It's over")
     # print(top_results)
     for solution, score, _ in top_results:
@@ -64,7 +64,7 @@ if __name__ == '__main__':
             Fact(Fact_Types.character, "El acusado tiene un carácter violento") : Fact_Info(0,0),
             Fact(Fact_Types.oportunity, "El acusado estaba cerca del lugar del crimen") : Fact_Info(0,0),
             Fact(Fact_Types.motive, "El acusado había perdido su trabajo"): Fact_Info(0,0)}
-    items_case = list(case.items()) 
+    items_case = list(case.keys()) 
 
     witness1 = Witness(1, perceive_world_witness, execute_actions_witness, facts=items_case[:3], age=35, socioeconomic_status="medio", education="high", ineptitude='low', side=True)
     witness2 = Witness(2, perceive_world_witness, execute_actions_witness, facts=items_case[3:5], age=50, socioeconomic_status="alto", education="medium", ineptitude='middle', side=True)
@@ -95,5 +95,5 @@ if __name__ == '__main__':
     jury6.role = Roles.follower
     jury_pool= [jury1,jury2,jury3,jury4,jury5,jury6]
 
-    start_simulation(lawyer, testimonies, jury_pool, 4)
-    tester(jury_pool, testimonies, lawyer, 4)
+    start_simulation(lawyer, testimonies, jury_pool, 4,case)
+    tester(jury_pool, testimonies, lawyer, 4, case)

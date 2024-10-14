@@ -47,6 +47,9 @@ class SimulationContext:
     def get_jury_size(self):
         return self.jury_size
     
+    def set_jury_size(self, size):
+        self.jury_size = size
+    
     def set_ongoing_strategy(self, strategy):
         self.ongoing_strategy = strategy
 
